@@ -81,12 +81,12 @@
 \urlstyle{same}
 \hypersetup{
   pdftitle={EUR/USD},
-  pdfauthor={Harvey, Andrés, Alexander},
+  pdfauthor={Harvey Bastidas, Andrés Caicedo, Alexander Alvarado},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
 \title{EUR/USD}
-\author{Harvey, Andrés, Alexander}
+\author{Harvey Bastidas, Andrés Caicedo, Alexander Alvarado}
 \date{2024-10-14}
 
 \begin{document}
@@ -156,7 +156,7 @@ SNR = \left(\frac{1}{0.09}\right)^2 \approx 123
 
 Este valor indica que la señal es mucho más fuerte que el ruido en este dataset. En contraste, otro dataset que probamos, con un CV de \textbf{20\%}, tenía un SNR mucho menor, alrededor de \textbf{25}. La diferencia muestra que el dataset de EUR/USD tiene una mayor preponderancia de señal sobre el ruido, lo que permite una mejor predictibilidad en los modelos de pronóstico.
 
-Dado que sabemos que el \textbf{SNR} es aprox \textbf{123}, esto significa que el ruido es aprox 1/123 = \textbf{0.08} que nos da una idea del máximo error absoluto (\textbf{MAE}) en los datos Normalizados en el pronósitco del siguiente periodo que podemos obtener, ya que errores por debajo de este valor probablemente incluirían la predicción del ruido y podrían ser indicador de overfitting en el modelo predictivo usado.
+Dado que sabemos que el \textbf{SNR} es aprox \textbf{123}, esto significa que el ruido es aprox 1/123 = \textbf{0.008} que nos da una idea del máximo error absoluto (\textbf{MAE}) en los datos Normalizados en el pronósitco del siguiente periodo que podemos obtener, ya que errores por debajo de este valor probablemente incluirían la predicción del ruido y podrían ser indicador de overfitting en el modelo predictivo usado.
 
 \section{Importancia de Analizar este Dataset}\label{importancia-de-analizar-este-dataset}
 
