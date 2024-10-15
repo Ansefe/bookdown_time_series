@@ -1,11 +1,5 @@
-fig:nice-fig
-tab:nice-tab
-prerequisites
-intro
-literature
-methods
-math-example
-applications
-example-one
-example-two
-final-words
+justificación-de-elección-del-dataset
+información-del-dataset
+justificación-de-la-elección-del-dataset
+relación-con-el-signal-to-noise-ratio-snr
+importancia-de-analizar-este-dataset
