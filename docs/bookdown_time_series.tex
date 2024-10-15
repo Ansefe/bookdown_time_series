@@ -96,7 +96,16 @@
 \setcounter{tocdepth}{1}
 \tableofcontents
 }
-\chapter{Justificación de elección del dataset}\label{justificaciuxf3n-de-elecciuxf3n-del-dataset}
+\chapter{Justificación de elección del Dataset}\label{justificaciuxf3n-de-elecciuxf3n-del-dataset}
+
+\textbf{Integrantes}:\\
+Harvey Bastidas, Alexander Alvarado y Andrés Caicedo\\
+\textbf{Materia}:\\
+Análisis de series de tiempo\\
+\textbf{Profesora}:\\
+Isabel Cristina García
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \section{Información del Dataset}\label{informaciuxf3n-del-dataset}
 
@@ -147,11 +156,13 @@ SNR = \left(\frac{1}{0.09}\right)^2 \approx 123
 
 Este valor indica que la señal es mucho más fuerte que el ruido en este dataset. En contraste, otro dataset que probamos, con un CV de \textbf{20\%}, tenía un SNR mucho menor, alrededor de \textbf{25}. La diferencia muestra que el dataset de EUR/USD tiene una mayor preponderancia de señal sobre el ruido, lo que permite una mejor predictibilidad en los modelos de pronóstico.
 
+Dado que sabemos que el \textbf{SNR} es aprox \textbf{123}, esto significa que el ruido es aprox 1/123 = \textbf{0.08} que nos da una idea del máximo error absoluto (\textbf{MAE}) en los datos Normalizados en el pronósitco del siguiente periodo que podemos obtener, ya que errores por debajo de este valor probablemente incluirían la predicción del ruido y podrían ser indicador de overfitting en el modelo predictivo usado.
+
 \section{Importancia de Analizar este Dataset}\label{importancia-de-analizar-este-dataset}
 
 La capacidad de predecir con precisión la tasa de cambio EUR/USD tiene múltiples aplicaciones en el sector financiero. En primer lugar, es fundamental para el \textbf{trading de divisas (Forex)}, donde una mejor predicción de las tendencias puede resultar en decisiones de inversión más acertadas. Además, es esencial para la gestión de portafolios financieros, ya que permite el uso de herramientas como la \textbf{Teoría Moderna de Portafolios (MPT)}, donde la diversificación se realiza teniendo en cuenta tanto la tendencia como la variabilidad de los activos.
 
-Por lo tanto, este dataset fue seleccionado debido a su alta calidad y baja variabilidad, lo que lo hace ideal para el análisis predictivo en el mercado de Forex, así como en la gestión de portafolios. El alto \textbf{SNR} nos da confianza en que las predicciones basadas en este dataset serán precisas y útiles en un entorno real.
+Por lo tanto, este dataset fue seleccionado debido a su alta calidad y baja variabilidad, lo que lo hace ideal para el análisis predictivo en el mercado de Forex, así como en la gestión de portafolios. El alto \textbf{SNR} nos da confianza en que las predicciones basadas en este dataset serán precisas y útiles en un entorno real, al mismo tiempo que nos alerta sobre los límites predictivos en función del ruido presente en los datos.
 
   \bibliography{book.bib,packages.bib}
 

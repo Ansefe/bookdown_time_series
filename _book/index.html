@@ -4,15 +4,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 1 Justificación de elección del dataset | EUR/USD</title>
+<title>Chapter 1 Justificación de elección del Dataset | EUR/USD</title>
 <meta name="author" content="Harvey, Andrés, Alexander">
 <meta name="description" content="Es documento contiene el desarrollo de las actividades propuestas en la materia de análisis de series de tiempo para la maestria de ciencia de datos.">
 <meta name="generator" content="bookdown 0.40 with bs4_book()">
-<meta property="og:title" content="Chapter 1 Justificación de elección del dataset | EUR/USD">
+<meta property="og:title" content="Chapter 1 Justificación de elección del Dataset | EUR/USD">
 <meta property="og:type" content="book">
 <meta property="og:description" content="Es documento contiene el desarrollo de las actividades propuestas en la materia de análisis de series de tiempo para la maestria de ciencia de datos.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chapter 1 Justificación de elección del dataset | EUR/USD">
+<meta name="twitter:title" content="Chapter 1 Justificación de elección del Dataset | EUR/USD">
 <meta name="twitter:description" content="Es documento contiene el desarrollo de las actividades propuestas en la materia de análisis de series de tiempo para la maestria de ciencia de datos.">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
@@ -41,7 +41,7 @@
 </form>
 
       <nav aria-label="Table of contents"><h2>Table of contents</h2>
-        <ul class="book-toc list-unstyled"><li><a class="active" href="index.html"><span class="header-section-number">1</span> Justificación de elección del dataset</a></li></ul>
+        <ul class="book-toc list-unstyled"><li><a class="active" href="index.html"><span class="header-section-number">1</span> Justificación de elección del Dataset</a></li></ul>
 
         <div class="book-extra">
           
@@ -50,8 +50,13 @@
 </div>
   </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><!--bookdown:title:end--><!--bookdown:title:start--><div id="justificación-de-elección-del-dataset" class="section level1" number="1">
 <h1>
-<span class="header-section-number">1</span> Justificación de elección del dataset<a class="anchor" aria-label="anchor" href="#justificaci%C3%B3n-de-elecci%C3%B3n-del-dataset"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1</span> Justificación de elección del Dataset<a class="anchor" aria-label="anchor" href="#justificaci%C3%B3n-de-elecci%C3%B3n-del-dataset"><i class="fas fa-link"></i></a>
 </h1>
+<p><strong>Integrantes</strong>:<br>
+Harvey Bastidas, Alexander Alvarado y Andrés Caicedo<br><strong>Materia</strong>:<br>
+Análisis de series de tiempo<br><strong>Profesora</strong>:<br>
+Isabel Cristina García</p>
+<hr>
 <div id="información-del-dataset" class="section level2" number="1.1">
 <h2>
 <span class="header-section-number">1.1</span> Información del Dataset<a class="anchor" aria-label="anchor" href="#informaci%C3%B3n-del-dataset"><i class="fas fa-link"></i></a>
@@ -93,6 +98,7 @@ Chicago, IL 60606, Estados Unidos</strong></p>
 SNR = \left(\frac{1}{0.09}\right)^2 \approx 123
 \]</span></p>
 <p>Este valor indica que la señal es mucho más fuerte que el ruido en este dataset. En contraste, otro dataset que probamos, con un CV de <strong>20%</strong>, tenía un SNR mucho menor, alrededor de <strong>25</strong>. La diferencia muestra que el dataset de EUR/USD tiene una mayor preponderancia de señal sobre el ruido, lo que permite una mejor predictibilidad en los modelos de pronóstico.</p>
+<p>Dado que sabemos que el <strong>SNR</strong> es aprox <strong>123</strong>, esto significa que el ruido es aprox 1/123 = <strong>0.08</strong> que nos da una idea del máximo error absoluto (<strong>MAE</strong>) en los datos Normalizados en el pronósitco del siguiente periodo que podemos obtener, ya que errores por debajo de este valor probablemente incluirían la predicción del ruido y podrían ser indicador de overfitting en el modelo predictivo usado.</p>
 </div>
 </div>
 <div id="importancia-de-analizar-este-dataset" class="section level2" number="1.3">
@@ -100,7 +106,7 @@ SNR = \left(\frac{1}{0.09}\right)^2 \approx 123
 <span class="header-section-number">1.3</span> Importancia de Analizar este Dataset<a class="anchor" aria-label="anchor" href="#importancia-de-analizar-este-dataset"><i class="fas fa-link"></i></a>
 </h2>
 <p>La capacidad de predecir con precisión la tasa de cambio EUR/USD tiene múltiples aplicaciones en el sector financiero. En primer lugar, es fundamental para el <strong>trading de divisas (Forex)</strong>, donde una mejor predicción de las tendencias puede resultar en decisiones de inversión más acertadas. Además, es esencial para la gestión de portafolios financieros, ya que permite el uso de herramientas como la <strong>Teoría Moderna de Portafolios (MPT)</strong>, donde la diversificación se realiza teniendo en cuenta tanto la tendencia como la variabilidad de los activos.</p>
-<p>Por lo tanto, este dataset fue seleccionado debido a su alta calidad y baja variabilidad, lo que lo hace ideal para el análisis predictivo en el mercado de Forex, así como en la gestión de portafolios. El alto <strong>SNR</strong> nos da confianza en que las predicciones basadas en este dataset serán precisas y útiles en un entorno real.</p>
+<p>Por lo tanto, este dataset fue seleccionado debido a su alta calidad y baja variabilidad, lo que lo hace ideal para el análisis predictivo en el mercado de Forex, así como en la gestión de portafolios. El alto <strong>SNR</strong> nos da confianza en que las predicciones basadas en este dataset serán precisas y útiles en un entorno real, al mismo tiempo que nos alerta sobre los límites predictivos en función del ruido presente en los datos.</p>
 
 </div>
 </div>
@@ -110,7 +116,7 @@ SNR = \left(\frac{1}{0.09}\right)^2 \approx 123
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
-<li><a class="nav-link" href="#justificaci%C3%B3n-de-elecci%C3%B3n-del-dataset"><span class="header-section-number">1</span> Justificación de elección del dataset</a></li>
+<li><a class="nav-link" href="#justificaci%C3%B3n-de-elecci%C3%B3n-del-dataset"><span class="header-section-number">1</span> Justificación de elección del Dataset</a></li>
 <li><a class="nav-link" href="#informaci%C3%B3n-del-dataset"><span class="header-section-number">1.1</span> Información del Dataset</a></li>
 <li>
 <a class="nav-link" href="#justificaci%C3%B3n-de-la-elecci%C3%B3n-del-dataset"><span class="header-section-number">1.2</span> Justificación de la Elección del Dataset</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#relaci%C3%B3n-con-el-signal-to-noise-ratio-snr"><span class="header-section-number">1.2.1</span> Relación con el Signal-to-Noise Ratio (SNR)</a></li></ul>
