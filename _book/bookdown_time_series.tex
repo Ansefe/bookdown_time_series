@@ -206,54 +206,38 @@ Por lo tanto, este dataset fue seleccionado debido a su alta calidad y baja vari
 
 \chapter{Estructura de los datos}\label{intro}
 
+Con el propósito de observar las tendencias y cambios estructurales en la serie, se realizan pruebas estadísticas para conocer la estructura subyacente de la serie.
+
 \section{Cálculo de Medias Móviles Simples:}\label{cuxe1lculo-de-medias-muxf3viles-simples}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Calcular las medias móviles}
-\NormalTok{data}\SpecialCharTok{$}\NormalTok{MA\_short }\OtherTok{\textless{}{-}} \FunctionTok{SMA}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{n =} \DecValTok{50}\NormalTok{)  }\CommentTok{\# Media móvil de 50 periodos}
-\NormalTok{data}\SpecialCharTok{$}\NormalTok{MA\_long }\OtherTok{\textless{}{-}} \FunctionTok{SMA}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{n =} \DecValTok{500}\NormalTok{)  }\CommentTok{\# Media móvil de 200 periodos}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Eliminar filas con NA en las medias móviles}
-\NormalTok{data\_clean }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(data)}
-
-\CommentTok{\# Crear el gráfico con las filas limpias}
-\FunctionTok{ggplot}\NormalTok{(data\_clean, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.POSIXct}\NormalTok{(Gmt.time, }\AttributeTok{format =} \StringTok{"\%d.\%m.\%Y \%H:\%M:\%S"}\NormalTok{))) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ close, }\AttributeTok{color =} \StringTok{"Close Price"}\NormalTok{)) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ MA\_short, }\AttributeTok{color =} \StringTok{"50{-}period MA"}\NormalTok{)) }\SpecialCharTok{+}
-  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ MA\_long, }\AttributeTok{color =} \StringTok{"500{-}period MA"}\NormalTok{)) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"EUR/USD Close Price with Moving Averages"}\NormalTok{,}
-       \AttributeTok{x =} \StringTok{"Date"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Price"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{scale\_color\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"Close Price"} \OtherTok{=} \StringTok{"black"}\NormalTok{, }
-                                \StringTok{"50{-}period MA"} \OtherTok{=} \StringTok{"blue"}\NormalTok{, }
-                                \StringTok{"500{-}period MA"} \OtherTok{=} \StringTok{"red"}\NormalTok{)) }\SpecialCharTok{+}
-  \FunctionTok{theme\_minimal}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
+El cálculo de medias móviles es una técnica común en el análisis de series de tiempo utilizada para suavizar las fluctuaciones a corto plazo y destacar las tendencias subyacentes en los datos. En este análisis, se implementan medias móviles de corto y largo plazo para identificar patrones de comportamiento y ayudar en la toma de decisiones basadas en tendencias más claras.
 
 \includegraphics{bookdown_time_series_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\begin{itemize}
+\item
+  \textbf{Media móvil de 50 periodos (MA corta)}:
+
+  \begin{itemize}
+  \item
+    Sigue de cerca las fluctuaciones del precio de cierre, respondiendo rápidamente a los cambios de tendencia.
+  \item
+    Captura las tendencias a \textbf{corto plazo}, pero también refleja mucha volatilidad.
+  \end{itemize}
+\item
+  \textbf{Media móvil de 500 periodos (MA larga)}:
+
+  \begin{itemize}
+  \item
+    Se mueve de forma más suave, reaccionando más lentamente a los cambios de precios.
+  \item
+    Indica la \textbf{tendencia a largo plazo}, proporcionando una visión más estable del comportamiento del mercado.
+  \end{itemize}
+\end{itemize}
 
 \section{Análisis de Rezagos}\label{anuxe1lisis-de-rezagos}
 
 Cómo se comporta la serie de tiempo con respecto a sus valores pasados, introduciendo rezagos.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Crear la serie de tiempo con frecuencia de 6 (observaciones diarias)}
-\NormalTok{ts\_close }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{frequency =} \DecValTok{6}\NormalTok{)  }\CommentTok{\# 6 periodos por día}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Visualizar los rezagos con lag.plot}
-\FunctionTok{lag.plot}\NormalTok{(ts\_close, }\AttributeTok{lags =} \DecValTok{9}\NormalTok{, }\AttributeTok{layout =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{), }\AttributeTok{main =} \StringTok{"Lag Plots of Close Prices (4{-}Hour Intervals)"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
 \includegraphics{bookdown_time_series_files/figure-latex/unnamed-chunk-5-1.pdf}
 
@@ -267,99 +251,17 @@ Dado que no hay patrones dispersos o sin forma definida, se puede inferir que la
 
 Para detectar si existe estacionalidad (patrones repetitivos), utilizaremos \textbf{decomposición} o \textbf{test de estacionalidad}.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(forecast)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Warning: package 'forecast' was built under R version 4.3.3
-\end{verbatim}
-
-\begin{verbatim}
-## Registered S3 method overwritten by 'quantmod':
-##   method            from
-##   as.zoo.data.frame zoo
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Convertir los datos a una serie de tiempo (asumiendo que son horarios)}
-\NormalTok{ts\_data }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{frequency =} \DecValTok{24} \SpecialCharTok{*} \DecValTok{30}\NormalTok{)  }\CommentTok{\# 24 datos diarios, 30 días al mes}
-
-\CommentTok{\# Descomposición STL}
-\NormalTok{decomposed }\OtherTok{\textless{}{-}} \FunctionTok{stl}\NormalTok{(ts\_data, }\AttributeTok{s.window =} \StringTok{"periodic"}\NormalTok{)}
-
-\CommentTok{\# Graficar la descomposición}
-\FunctionTok{plot}\NormalTok{(decomposed)}
-\end{Highlighting}
-\end{Shaded}
-
 \includegraphics{bookdown_time_series_files/figure-latex/unnamed-chunk-6-1.pdf}
 
-En la gráfica de \textbf{descomposición de series de tiempo} que muestras, se visualizan los \textbf{componentes de la serie}: datos originales, estacionalidad, tendencia y residuales (remainder). A continuación, te explico cómo interpretar cada componente:
+En la gráfica de \textbf{descomposición de series de tiempo} se visualizan los \textbf{componentes de la serie}: datos originales, estacionalidad, tendencia y residuales (remainder):
 
-\subsection{\texorpdfstring{1. \textbf{Datos Originales (data)}}{1. Datos Originales (data)}}\label{datos-originales-data}
+1. \textbf{Datos Originales (data):} En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo. Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.
 
-\begin{itemize}
-\item
-  En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo.
-\item
-  Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.
-\end{itemize}
+2. \textbf{Componente Estacional (seasonal):} El segundo gráfico muestra un \textbf{patrón repetitivo y periódico}. Este patrón sugiere que hay \textbf{ciclos regulares} en la serie. La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal). Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).
 
-\subsection{\texorpdfstring{2. \textbf{Componente Estacional (seasonal)}}{2. Componente Estacional (seasonal)}}\label{componente-estacional-seasonal}
+3. \textbf{Componente de Tendencia (trend):} El tercer gráfico muestra una \textbf{tendencia suavizada} que sigue la dirección general del mercado. Observamos fases de \textbf{alzas y caídas}: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
 
-\begin{itemize}
-\item
-  El segundo gráfico muestra un \textbf{patrón repetitivo y periódico}. Este patrón sugiere que hay \textbf{ciclos regulares} en la serie.
-\item
-  La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal).
-\end{itemize}
-
-\textbf{Interpretación}:
-
-\begin{itemize}
-\item
-  \textbf{Mercados Forex} suelen tener patrones intradía o semanales, influenciados por la apertura y cierre de mercados (como los de Nueva York, Londres y Tokio).
-\item
-  Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).
-\end{itemize}
-
-\subsection{\texorpdfstring{3. \textbf{Componente de Tendencia (trend)}}{3. Componente de Tendencia (trend)}}\label{componente-de-tendencia-trend}
-
-\begin{itemize}
-\item
-  El tercer gráfico muestra una \textbf{tendencia suavizada} que sigue la dirección general del mercado.
-\item
-  Observamos fases de \textbf{alzas y caídas}: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
-\end{itemize}
-
-\textbf{Interpretación}:
-
-\begin{itemize}
-\tightlist
-\item
-  Este componente captura el \textbf{movimiento de largo plazo} del mercado. Aquí, parece que el mercado tiene ciclos de crecimiento seguidos de correcciones, algo común en activos como las divisas.
-\end{itemize}
-
-\subsection{\texorpdfstring{4. \textbf{Componente de Residuos o Resto (remainder)}}{4. Componente de Residuos o Resto (remainder)}}\label{componente-de-residuos-o-resto-remainder}
-
-\begin{itemize}
-\item
-  El último gráfico (remainder) muestra los \textbf{residuos} o la parte de los datos que no es explicada por la tendencia ni la estacionalidad.
-\item
-  Estos residuos parecen ser \textbf{ruido blanco}, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
-\end{itemize}
-
-\textbf{Interpretación}:
-
-\begin{itemize}
-\tightlist
-\item
-  Un buen modelo de descomposición debe dejar los residuos sin patrones claros, como sucede en este caso. Esto indica que la tendencia y la estacionalidad explican bien el comportamiento de la serie.
-\end{itemize}
+4. \textbf{Componente de Residuos o Resto (remainder):} El último gráfico (remainder) muestra los \textbf{residuos} o la parte de los datos que no es explicada por la tendencia ni la estacionalidad. Estos residuos parecen ser \textbf{ruido blanco}, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
 
 Prueba de estacionalidad con adf.test:
 

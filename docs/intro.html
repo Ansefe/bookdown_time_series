@@ -6,14 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 2 Estructura de los datos | EUR/USD</title>
 <meta name="author" content="Harvey Bastidas, Andrés Caicedo, Alexander Alvarado">
-<meta name="description" content="2.1 Cálculo de Medias Móviles Simples: # Calcular las medias móviles data$MA_short &lt;- SMA(data$close, n = 50) # Media móvil de 50 periodos data$MA_long &lt;- SMA(data$close, n = 500) # Media móvil de...">
+<meta name="description" content="Con el propósito de observar las tendencias y cambios estructurales en la serie, se realizan pruebas estadísticas para conocer la estructura subyacente de la serie.  2.1 Cálculo de Medias Móviles...">
 <meta name="generator" content="bookdown 0.40 with bs4_book()">
 <meta property="og:title" content="Chapter 2 Estructura de los datos | EUR/USD">
 <meta property="og:type" content="book">
-<meta property="og:description" content="2.1 Cálculo de Medias Móviles Simples: # Calcular las medias móviles data$MA_short &lt;- SMA(data$close, n = 50) # Media móvil de 50 periodos data$MA_long &lt;- SMA(data$close, n = 500) # Media móvil de...">
+<meta property="og:description" content="Con el propósito de observar las tendencias y cambios estructurales en la serie, se realizan pruebas estadísticas para conocer la estructura subyacente de la serie.  2.1 Cálculo de Medias Móviles...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 2 Estructura de los datos | EUR/USD">
-<meta name="twitter:description" content="2.1 Cálculo de Medias Móviles Simples: # Calcular las medias móviles data$MA_short &lt;- SMA(data$close, n = 50) # Media móvil de 50 periodos data$MA_long &lt;- SMA(data$close, n = 500) # Media móvil de...">
+<meta name="twitter:description" content="Con el propósito de observar las tendencias y cambios estructurales en la serie, se realizan pruebas estadísticas para conocer la estructura subyacente de la serie.  2.1 Cálculo de Medias Móviles...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -55,42 +55,35 @@
 <h1>
 <span class="header-section-number">2</span> Estructura de los datos<a class="anchor" aria-label="anchor" href="#intro"><i class="fas fa-link"></i></a>
 </h1>
+<p>Con el propósito de observar las tendencias y cambios estructurales en la serie, se realizan pruebas estadísticas para conocer la estructura subyacente de la serie.</p>
 <div id="cálculo-de-medias-móviles-simples" class="section level2" number="2.1">
 <h2>
 <span class="header-section-number">2.1</span> Cálculo de Medias Móviles Simples:<a class="anchor" aria-label="anchor" href="#c%C3%A1lculo-de-medias-m%C3%B3viles-simples"><i class="fas fa-link"></i></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calcular las medias móviles</span></span>
-<span><span class="va">data</span><span class="op">$</span><span class="va">MA_short</span> <span class="op">&lt;-</span> <span class="fu">SMA</span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">close</span>, n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>  <span class="co"># Media móvil de 50 periodos</span></span>
-<span><span class="va">data</span><span class="op">$</span><span class="va">MA_long</span> <span class="op">&lt;-</span> <span class="fu">SMA</span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">close</span>, n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span>  <span class="co"># Media móvil de 200 periodos</span></span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Eliminar filas con NA en las medias móviles</span></span>
-<span><span class="va">data_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Crear el gráfico con las filas limpias</span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">data_clean</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="va">Gmt.time</span>, format <span class="op">=</span> <span class="st">"%d.%m.%Y %H:%M:%S"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_line</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">close</span>, color <span class="op">=</span> <span class="st">"Close Price"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_line</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">MA_short</span>, color <span class="op">=</span> <span class="st">"50-period MA"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_line</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">MA_long</span>, color <span class="op">=</span> <span class="st">"500-period MA"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"EUR/USD Close Price with Moving Averages"</span>,</span>
-<span>       x <span class="op">=</span> <span class="st">"Date"</span>, y <span class="op">=</span> <span class="st">"Price"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_color_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Close Price"</span> <span class="op">=</span> <span class="st">"black"</span>, </span>
-<span>                                <span class="st">"50-period MA"</span> <span class="op">=</span> <span class="st">"blue"</span>, </span>
-<span>                                <span class="st">"500-period MA"</span> <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>El cálculo de medias móviles es una técnica común en el análisis de series de tiempo utilizada para suavizar las fluctuaciones a corto plazo y destacar las tendencias subyacentes en los datos. En este análisis, se implementan medias móviles de corto y largo plazo para identificar patrones de comportamiento y ayudar en la toma de decisiones basadas en tendencias más claras.</p>
 <div class="inline-figure"><img src="bookdown_time_series_files/figure-html/unnamed-chunk-3-1.png" width="672"></div>
+<ul>
+<li>
+<p><strong>Media móvil de 50 periodos (MA corta)</strong>:</p>
+<ul>
+<li><p>Sigue de cerca las fluctuaciones del precio de cierre, respondiendo rápidamente a los cambios de tendencia.</p></li>
+<li><p>Captura las tendencias a <strong>corto plazo</strong>, pero también refleja mucha volatilidad.</p></li>
+</ul>
+</li>
+<li>
+<p><strong>Media móvil de 500 periodos (MA larga)</strong>:</p>
+<ul>
+<li><p>Se mueve de forma más suave, reaccionando más lentamente a los cambios de precios.</p></li>
+<li><p>Indica la <strong>tendencia a largo plazo</strong>, proporcionando una visión más estable del comportamiento del mercado.</p></li>
+</ul>
+</li>
+</ul>
 </div>
 <div id="análisis-de-rezagos" class="section level2" number="2.2">
 <h2>
 <span class="header-section-number">2.2</span> Análisis de Rezagos<a class="anchor" aria-label="anchor" href="#an%C3%A1lisis-de-rezagos"><i class="fas fa-link"></i></a>
 </h2>
 <p>Cómo se comporta la serie de tiempo con respecto a sus valores pasados, introduciendo rezagos.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Crear la serie de tiempo con frecuencia de 6 (observaciones diarias)</span></span>
-<span><span class="va">ts_close</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/ts.html">ts</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">close</span>, frequency <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>  <span class="co"># 6 periodos por día</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Visualizar los rezagos con lag.plot</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/lag.plot.html">lag.plot</a></span><span class="op">(</span><span class="va">ts_close</span>, lags <span class="op">=</span> <span class="fl">9</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"Lag Plots of Close Prices (4-Hour Intervals)"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="bookdown_time_series_files/figure-html/unnamed-chunk-5-1.png" width="672"></div>
 <p>En cada uno de los gráficos, los puntos siguen una línea casi perfectamente recta, sugiriendo una <strong>alta autocorrelación</strong> entre los valores de la serie con sus rezagos cercanos.</p>
 <p>La pendiente positiva indica que cuando el valor anterior era alto, el valor actual también tiende a ser alto, y lo mismo sucede para valores bajos. Esto sugiere que <strong>la serie es muy persistente</strong>, es decir, los precios tienden a seguir una dirección similar en el corto plazo.</p>
@@ -101,76 +94,17 @@
 <span class="header-section-number">2.3</span> Análisis de Estacionalidad<a class="anchor" aria-label="anchor" href="#an%C3%A1lisis-de-estacionalidad"><i class="fas fa-link"></i></a>
 </h2>
 <p>Para detectar si existe estacionalidad (patrones repetitivos), utilizaremos <strong>decomposición</strong> o <strong>test de estacionalidad</strong>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://pkg.robjhyndman.com/forecast/">forecast</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code>## Warning: package 'forecast' was built under R version 4.3.3</code></pre>
-<pre><code>## Registered S3 method overwritten by 'quantmod':
-##   method            from
-##   as.zoo.data.frame zoo</code></pre>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Convertir los datos a una serie de tiempo (asumiendo que son horarios)</span></span>
-<span><span class="va">ts_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/ts.html">ts</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">close</span>, frequency <span class="op">=</span> <span class="fl">24</span> <span class="op">*</span> <span class="fl">30</span><span class="op">)</span>  <span class="co"># 24 datos diarios, 30 días al mes</span></span>
-<span></span>
-<span><span class="co"># Descomposición STL</span></span>
-<span><span class="va">decomposed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/stl.html">stl</a></span><span class="op">(</span><span class="va">ts_data</span>, s.window <span class="op">=</span> <span class="st">"periodic"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Graficar la descomposición</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">decomposed</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="bookdown_time_series_files/figure-html/unnamed-chunk-6-1.png" width="672"></div>
-<p>En la gráfica de <strong>descomposición de series de tiempo</strong> que muestras, se visualizan los <strong>componentes de la serie</strong>: datos originales, estacionalidad, tendencia y residuales (remainder). A continuación, te explico cómo interpretar cada componente:</p>
-<div id="datos-originales-data" class="section level3" number="2.3.1">
-<h3>
-<span class="header-section-number">2.3.1</span> 1. <strong>Datos Originales (data)</strong><a class="anchor" aria-label="anchor" href="#datos-originales-data"><i class="fas fa-link"></i></a>
-</h3>
-<ul>
-<li><p>En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo.</p></li>
-<li><p>Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.</p></li>
-</ul>
-</div>
-<div id="componente-estacional-seasonal" class="section level3" number="2.3.2">
-<h3>
-<span class="header-section-number">2.3.2</span> 2. <strong>Componente Estacional (seasonal)</strong><a class="anchor" aria-label="anchor" href="#componente-estacional-seasonal"><i class="fas fa-link"></i></a>
-</h3>
-<ul>
-<li><p>El segundo gráfico muestra un <strong>patrón repetitivo y periódico</strong>. Este patrón sugiere que hay <strong>ciclos regulares</strong> en la serie.</p></li>
-<li><p>La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal).</p></li>
-</ul>
-<p><strong>Interpretación</strong>:</p>
-<ul>
-<li><p><strong>Mercados Forex</strong> suelen tener patrones intradía o semanales, influenciados por la apertura y cierre de mercados (como los de Nueva York, Londres y Tokio).</p></li>
-<li><p>Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).</p></li>
-</ul>
-</div>
-<div id="componente-de-tendencia-trend" class="section level3" number="2.3.3">
-<h3>
-<span class="header-section-number">2.3.3</span> 3. <strong>Componente de Tendencia (trend)</strong><a class="anchor" aria-label="anchor" href="#componente-de-tendencia-trend"><i class="fas fa-link"></i></a>
-</h3>
-<ul>
-<li><p>El tercer gráfico muestra una <strong>tendencia suavizada</strong> que sigue la dirección general del mercado.</p></li>
-<li><p>Observamos fases de <strong>alzas y caídas</strong>: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.</p></li>
-</ul>
-<p><strong>Interpretación</strong>:</p>
-<ul>
-<li>Este componente captura el <strong>movimiento de largo plazo</strong> del mercado. Aquí, parece que el mercado tiene ciclos de crecimiento seguidos de correcciones, algo común en activos como las divisas.</li>
-</ul>
-</div>
-<div id="componente-de-residuos-o-resto-remainder" class="section level3" number="2.3.4">
-<h3>
-<span class="header-section-number">2.3.4</span> 4. <strong>Componente de Residuos o Resto (remainder)</strong><a class="anchor" aria-label="anchor" href="#componente-de-residuos-o-resto-remainder"><i class="fas fa-link"></i></a>
-</h3>
-<ul>
-<li><p>El último gráfico (remainder) muestra los <strong>residuos</strong> o la parte de los datos que no es explicada por la tendencia ni la estacionalidad.</p></li>
-<li><p>Estos residuos parecen ser <strong>ruido blanco</strong>, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.</p></li>
-</ul>
-<p><strong>Interpretación</strong>:</p>
-<ul>
-<li>Un buen modelo de descomposición debe dejar los residuos sin patrones claros, como sucede en este caso. Esto indica que la tendencia y la estacionalidad explican bien el comportamiento de la serie.</li>
-</ul>
+<p>En la gráfica de <strong>descomposición de series de tiempo</strong> se visualizan los <strong>componentes de la serie</strong>: datos originales, estacionalidad, tendencia y residuales (remainder):</p>
+<p>1. <strong>Datos Originales (data):</strong> En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo. Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.</p>
+<p>2. <strong>Componente Estacional (seasonal):</strong> El segundo gráfico muestra un <strong>patrón repetitivo y periódico</strong>. Este patrón sugiere que hay <strong>ciclos regulares</strong> en la serie. La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal). Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).</p>
+<p>3. <strong>Componente de Tendencia (trend):</strong> El tercer gráfico muestra una <strong>tendencia suavizada</strong> que sigue la dirección general del mercado. Observamos fases de <strong>alzas y caídas</strong>: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.</p>
+<p>4. <strong>Componente de Residuos o Resto (remainder):</strong> El último gráfico (remainder) muestra los <strong>residuos</strong> o la parte de los datos que no es explicada por la tendencia ni la estacionalidad. Estos residuos parecen ser <strong>ruido blanco</strong>, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.</p>
 <p>Prueba de estacionalidad con adf.test:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">tseries</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Warning: package 'tseries' was built under R version 4.3.3</code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Prueba de Dickey-Fuller aumentada para detectar estacionalidad</span></span>
 <span><span class="va">adf_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tseries/man/adf.test.html">adf.test</a></span><span class="op">(</span><span class="va">ts_data</span>, alternative <span class="op">=</span> <span class="st">"stationary"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">adf_test</span><span class="op">)</span></span></code></pre></div>
@@ -183,7 +117,6 @@
 
 </div>
 </div>
-</div>
   <div class="chapter-nav">
 <div class="prev"><a href="index.html"><span class="header-section-number">1</span> Justificación de elección del Dataset</a></div>
 <div class="empty"></div>
@@ -193,14 +126,7 @@
 <li><a class="nav-link" href="#intro"><span class="header-section-number">2</span> Estructura de los datos</a></li>
 <li><a class="nav-link" href="#c%C3%A1lculo-de-medias-m%C3%B3viles-simples"><span class="header-section-number">2.1</span> Cálculo de Medias Móviles Simples:</a></li>
 <li><a class="nav-link" href="#an%C3%A1lisis-de-rezagos"><span class="header-section-number">2.2</span> Análisis de Rezagos</a></li>
-<li>
-<a class="nav-link" href="#an%C3%A1lisis-de-estacionalidad"><span class="header-section-number">2.3</span> Análisis de Estacionalidad</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#datos-originales-data"><span class="header-section-number">2.3.1</span> 1. Datos Originales (data)</a></li>
-<li><a class="nav-link" href="#componente-estacional-seasonal"><span class="header-section-number">2.3.2</span> 2. Componente Estacional (seasonal)</a></li>
-<li><a class="nav-link" href="#componente-de-tendencia-trend"><span class="header-section-number">2.3.3</span> 3. Componente de Tendencia (trend)</a></li>
-<li><a class="nav-link" href="#componente-de-residuos-o-resto-remainder"><span class="header-section-number">2.3.4</span> 4. Componente de Residuos o Resto (remainder)</a></li>
-</ul>
-</li>
+<li><a class="nav-link" href="#an%C3%A1lisis-de-estacionalidad"><span class="header-section-number">2.3</span> Análisis de Estacionalidad</a></li>
 </ul>
 
       <div class="book-extra">

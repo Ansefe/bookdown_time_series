@@ -6,15 +6,19 @@ library(ggplot2)
 data <- read.csv("./EURUSD_ForexTrading_4hrs.csv")
 ```
 
+Con el propósito de observar las tendencias y cambios estructurales en la serie, se realizan pruebas estadísticas para conocer la estructura subyacente de la serie.
+
 ## Cálculo de Medias Móviles Simples:
 
-```{r}
+El cálculo de medias móviles es una técnica común en el análisis de series de tiempo utilizada para suavizar las fluctuaciones a corto plazo y destacar las tendencias subyacentes en los datos. En este análisis, se implementan medias móviles de corto y largo plazo para identificar patrones de comportamiento y ayudar en la toma de decisiones basadas en tendencias más claras.
+
+```{r include=FALSE}
 # Calcular las medias móviles
 data$MA_short <- SMA(data$close, n = 50)  # Media móvil de 50 periodos
-data$MA_long <- SMA(data$close, n = 500)  # Media móvil de 200 periodos
+data$MA_long <- SMA(data$close, n = 500)  # Media móvil de 500 periodos
 ```
 
-```{r}
+```{r echo=FALSE}
 # Eliminar filas con NA en las medias móviles
 data_clean <- na.omit(data)
 
@@ -33,16 +37,28 @@ ggplot(data_clean, aes(x = as.POSIXct(Gmt.time, format = "%d.%m.%Y %H:%M:%S"))) 
 
 ```
 
-##  Análisis de Rezagos
+-   **Media móvil de 50 periodos (MA corta)**:
+
+    -   Sigue de cerca las fluctuaciones del precio de cierre, respondiendo rápidamente a los cambios de tendencia.
+
+    -   Captura las tendencias a **corto plazo**, pero también refleja mucha volatilidad.
+
+-   **Media móvil de 500 periodos (MA larga)**:
+
+    -   Se mueve de forma más suave, reaccionando más lentamente a los cambios de precios.
+
+    -   Indica la **tendencia a largo plazo**, proporcionando una visión más estable del comportamiento del mercado.
+
+## Análisis de Rezagos
 
 Cómo se comporta la serie de tiempo con respecto a sus valores pasados, introduciendo rezagos.
 
-```{r}
+```{r include=FALSE}
 # Crear la serie de tiempo con frecuencia de 6 (observaciones diarias)
 ts_close <- ts(data$close, frequency = 6)  # 6 periodos por día
 ```
 
-```{r}
+```{r echo=FALSE}
 # Visualizar los rezagos con lag.plot
 lag.plot(ts_close, lags = 9, layout = c(3, 3), main = "Lag Plots of Close Prices (4-Hour Intervals)")
 
@@ -58,7 +74,7 @@ Dado que no hay patrones dispersos o sin forma definida, se puede inferir que la
 
 Para detectar si existe estacionalidad (patrones repetitivos), utilizaremos **decomposición** o **test de estacionalidad**.
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(forecast)
 
 # Convertir los datos a una serie de tiempo (asumiendo que son horarios)
@@ -72,45 +88,15 @@ plot(decomposed)
 
 ```
 
-En la gráfica de **descomposición de series de tiempo** que muestras, se visualizan los **componentes de la serie**: datos originales, estacionalidad, tendencia y residuales (remainder). A continuación, te explico cómo interpretar cada componente:
+En la gráfica de **descomposición de series de tiempo** se visualizan los **componentes de la serie**: datos originales, estacionalidad, tendencia y residuales (remainder):
 
-### 1. **Datos Originales (data)**
+1\. **Datos Originales (data):** En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo. Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.
 
--   En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo.
+2\. **Componente Estacional (seasonal):** El segundo gráfico muestra un **patrón repetitivo y periódico**. Este patrón sugiere que hay **ciclos regulares** en la serie. La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal). Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).
 
--   Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.
+3\. **Componente de Tendencia (trend):** El tercer gráfico muestra una **tendencia suavizada** que sigue la dirección general del mercado. Observamos fases de **alzas y caídas**: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
 
-### 2. **Componente Estacional (seasonal)**
-
--   El segundo gráfico muestra un **patrón repetitivo y periódico**. Este patrón sugiere que hay **ciclos regulares** en la serie.
-
--   La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal).
-
-**Interpretación**:
-
--   **Mercados Forex** suelen tener patrones intradía o semanales, influenciados por la apertura y cierre de mercados (como los de Nueva York, Londres y Tokio).
-
--   Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).
-
-### 3. **Componente de Tendencia (trend)**
-
--   El tercer gráfico muestra una **tendencia suavizada** que sigue la dirección general del mercado.
-
--   Observamos fases de **alzas y caídas**: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
-
-**Interpretación**:
-
--   Este componente captura el **movimiento de largo plazo** del mercado. Aquí, parece que el mercado tiene ciclos de crecimiento seguidos de correcciones, algo común en activos como las divisas.
-
-### 4. **Componente de Residuos o Resto (remainder)**
-
--   El último gráfico (remainder) muestra los **residuos** o la parte de los datos que no es explicada por la tendencia ni la estacionalidad.
-
--   Estos residuos parecen ser **ruido blanco**, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
-
-**Interpretación**:
-
--   Un buen modelo de descomposición debe dejar los residuos sin patrones claros, como sucede en este caso. Esto indica que la tendencia y la estacionalidad explican bien el comportamiento de la serie.
+4\. **Componente de Residuos o Resto (remainder):** El último gráfico (remainder) muestra los **residuos** o la parte de los datos que no es explicada por la tendencia ni la estacionalidad. Estos residuos parecen ser **ruido blanco**, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
 
 Prueba de estacionalidad con adf.test:
 

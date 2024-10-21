@@ -7,7 +7,3 @@ intro
 cálculo-de-medias-móviles-simples
 análisis-de-rezagos
 análisis-de-estacionalidad
-datos-originales-data
-componente-estacional-seasonal
-componente-de-tendencia-trend
-componente-de-residuos-o-resto-remainder
