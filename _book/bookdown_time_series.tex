@@ -36,6 +36,46 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -87,7 +127,7 @@
 
 \title{EUR/USD}
 \author{Harvey Bastidas, Andrés Caicedo, Alexander Alvarado}
-\date{2024-10-14}
+\date{2024-10-21}
 
 \begin{document}
 \maketitle
@@ -163,6 +203,192 @@ Dado que sabemos que el \textbf{SNR} es aprox \textbf{123}, esto significa que e
 La capacidad de predecir con precisión la tasa de cambio EUR/USD tiene múltiples aplicaciones en el sector financiero. En primer lugar, es fundamental para el \textbf{trading de divisas (Forex)}, donde una mejor predicción de las tendencias puede resultar en decisiones de inversión más acertadas. Además, es esencial para la gestión de portafolios financieros, ya que permite el uso de herramientas como la \textbf{Teoría Moderna de Portafolios (MPT)}, donde la diversificación se realiza teniendo en cuenta tanto la tendencia como la variabilidad de los activos.
 
 Por lo tanto, este dataset fue seleccionado debido a su alta calidad y baja variabilidad, lo que lo hace ideal para el análisis predictivo en el mercado de Forex, así como en la gestión de portafolios. El alto \textbf{SNR} nos da confianza en que las predicciones basadas en este dataset serán precisas y útiles en un entorno real, al mismo tiempo que nos alerta sobre los límites predictivos en función del ruido presente en los datos.
+
+\chapter{Estructura de los datos}\label{intro}
+
+\section{Cálculo de Medias Móviles Simples:}\label{cuxe1lculo-de-medias-muxf3viles-simples}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Calcular las medias móviles}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{MA\_short }\OtherTok{\textless{}{-}} \FunctionTok{SMA}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{n =} \DecValTok{50}\NormalTok{)  }\CommentTok{\# Media móvil de 50 periodos}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{MA\_long }\OtherTok{\textless{}{-}} \FunctionTok{SMA}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{n =} \DecValTok{500}\NormalTok{)  }\CommentTok{\# Media móvil de 200 periodos}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Eliminar filas con NA en las medias móviles}
+\NormalTok{data\_clean }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(data)}
+
+\CommentTok{\# Crear el gráfico con las filas limpias}
+\FunctionTok{ggplot}\NormalTok{(data\_clean, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.POSIXct}\NormalTok{(Gmt.time, }\AttributeTok{format =} \StringTok{"\%d.\%m.\%Y \%H:\%M:\%S"}\NormalTok{))) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ close, }\AttributeTok{color =} \StringTok{"Close Price"}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ MA\_short, }\AttributeTok{color =} \StringTok{"50{-}period MA"}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ MA\_long, }\AttributeTok{color =} \StringTok{"500{-}period MA"}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"EUR/USD Close Price with Moving Averages"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Date"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Price"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"Close Price"} \OtherTok{=} \StringTok{"black"}\NormalTok{, }
+                                \StringTok{"50{-}period MA"} \OtherTok{=} \StringTok{"blue"}\NormalTok{, }
+                                \StringTok{"500{-}period MA"} \OtherTok{=} \StringTok{"red"}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{bookdown_time_series_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\section{Análisis de Rezagos}\label{anuxe1lisis-de-rezagos}
+
+Cómo se comporta la serie de tiempo con respecto a sus valores pasados, introduciendo rezagos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Crear la serie de tiempo con frecuencia de 6 (observaciones diarias)}
+\NormalTok{ts\_close }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{frequency =} \DecValTok{6}\NormalTok{)  }\CommentTok{\# 6 periodos por día}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Visualizar los rezagos con lag.plot}
+\FunctionTok{lag.plot}\NormalTok{(ts\_close, }\AttributeTok{lags =} \DecValTok{9}\NormalTok{, }\AttributeTok{layout =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{), }\AttributeTok{main =} \StringTok{"Lag Plots of Close Prices (4{-}Hour Intervals)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{bookdown_time_series_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+En cada uno de los gráficos, los puntos siguen una línea casi perfectamente recta, sugiriendo una \textbf{alta autocorrelación} entre los valores de la serie con sus rezagos cercanos.
+
+La pendiente positiva indica que cuando el valor anterior era alto, el valor actual también tiende a ser alto, y lo mismo sucede para valores bajos. Esto sugiere que \textbf{la serie es muy persistente}, es decir, los precios tienden a seguir una dirección similar en el corto plazo.
+
+Dado que no hay patrones dispersos o sin forma definida, se puede inferir que la serie no tiene cambios abruptos o comportamiento caótico entre los puntos cercanos. Esto podría indicar que \textbf{no hay mucha volatilidad} en los intervalos de 4 horas.
+
+\section{Análisis de Estacionalidad}\label{anuxe1lisis-de-estacionalidad}
+
+Para detectar si existe estacionalidad (patrones repetitivos), utilizaremos \textbf{decomposición} o \textbf{test de estacionalidad}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(forecast)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'forecast' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Registered S3 method overwritten by 'quantmod':
+##   method            from
+##   as.zoo.data.frame zoo
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Convertir los datos a una serie de tiempo (asumiendo que son horarios)}
+\NormalTok{ts\_data }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{close, }\AttributeTok{frequency =} \DecValTok{24} \SpecialCharTok{*} \DecValTok{30}\NormalTok{)  }\CommentTok{\# 24 datos diarios, 30 días al mes}
+
+\CommentTok{\# Descomposición STL}
+\NormalTok{decomposed }\OtherTok{\textless{}{-}} \FunctionTok{stl}\NormalTok{(ts\_data, }\AttributeTok{s.window =} \StringTok{"periodic"}\NormalTok{)}
+
+\CommentTok{\# Graficar la descomposición}
+\FunctionTok{plot}\NormalTok{(decomposed)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{bookdown_time_series_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+En la gráfica de \textbf{descomposición de series de tiempo} que muestras, se visualizan los \textbf{componentes de la serie}: datos originales, estacionalidad, tendencia y residuales (remainder). A continuación, te explico cómo interpretar cada componente:
+
+\subsection{\texorpdfstring{1. \textbf{Datos Originales (data)}}{1. Datos Originales (data)}}\label{datos-originales-data}
+
+\begin{itemize}
+\item
+  En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo.
+\item
+  Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.
+\end{itemize}
+
+\subsection{\texorpdfstring{2. \textbf{Componente Estacional (seasonal)}}{2. Componente Estacional (seasonal)}}\label{componente-estacional-seasonal}
+
+\begin{itemize}
+\item
+  El segundo gráfico muestra un \textbf{patrón repetitivo y periódico}. Este patrón sugiere que hay \textbf{ciclos regulares} en la serie.
+\item
+  La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal).
+\end{itemize}
+
+\textbf{Interpretación}:
+
+\begin{itemize}
+\item
+  \textbf{Mercados Forex} suelen tener patrones intradía o semanales, influenciados por la apertura y cierre de mercados (como los de Nueva York, Londres y Tokio).
+\item
+  Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).
+\end{itemize}
+
+\subsection{\texorpdfstring{3. \textbf{Componente de Tendencia (trend)}}{3. Componente de Tendencia (trend)}}\label{componente-de-tendencia-trend}
+
+\begin{itemize}
+\item
+  El tercer gráfico muestra una \textbf{tendencia suavizada} que sigue la dirección general del mercado.
+\item
+  Observamos fases de \textbf{alzas y caídas}: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
+\end{itemize}
+
+\textbf{Interpretación}:
+
+\begin{itemize}
+\tightlist
+\item
+  Este componente captura el \textbf{movimiento de largo plazo} del mercado. Aquí, parece que el mercado tiene ciclos de crecimiento seguidos de correcciones, algo común en activos como las divisas.
+\end{itemize}
+
+\subsection{\texorpdfstring{4. \textbf{Componente de Residuos o Resto (remainder)}}{4. Componente de Residuos o Resto (remainder)}}\label{componente-de-residuos-o-resto-remainder}
+
+\begin{itemize}
+\item
+  El último gráfico (remainder) muestra los \textbf{residuos} o la parte de los datos que no es explicada por la tendencia ni la estacionalidad.
+\item
+  Estos residuos parecen ser \textbf{ruido blanco}, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
+\end{itemize}
+
+\textbf{Interpretación}:
+
+\begin{itemize}
+\tightlist
+\item
+  Un buen modelo de descomposición debe dejar los residuos sin patrones claros, como sucede en este caso. Esto indica que la tendencia y la estacionalidad explican bien el comportamiento de la serie.
+\end{itemize}
+
+Prueba de estacionalidad con adf.test:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tseries)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'tseries' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Prueba de Dickey{-}Fuller aumentada para detectar estacionalidad}
+\NormalTok{adf\_test }\OtherTok{\textless{}{-}} \FunctionTok{adf.test}\NormalTok{(ts\_data, }\AttributeTok{alternative =} \StringTok{"stationary"}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(adf\_test)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Augmented Dickey-Fuller Test
+## 
+## data:  ts_data
+## Dickey-Fuller = -2.8283, Lag order = 30, p-value = 0.2269
+## alternative hypothesis: stationary
+\end{verbatim}
 
   \bibliography{book.bib,packages.bib}
 

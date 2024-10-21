@@ -1,21 +1,124 @@
-# Introduction {#intro}
+# Estructura de los datos {#intro}
 
-You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods).
-
-Figures and tables with captions will be placed in `figure` and `table` environments, respectively.
-
-```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
-par(mar = c(4, 4, .1, .1))
-plot(pressure, type = 'b', pch = 19)
+```{r warning=FALSE, include=FALSE}
+library(TTR)
+library(ggplot2)
+data <- read.csv("./EURUSD_ForexTrading_4hrs.csv")
 ```
 
-Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab).
+## Cálculo de Medias Móviles Simples:
 
-```{r nice-tab, tidy=FALSE}
-knitr::kable(
-  head(iris, 20), caption = 'Here is a nice table!',
-  booktabs = TRUE
-)
+```{r}
+# Calcular las medias móviles
+data$MA_short <- SMA(data$close, n = 50)  # Media móvil de 50 periodos
+data$MA_long <- SMA(data$close, n = 500)  # Media móvil de 200 periodos
 ```
 
-You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015].
+```{r}
+# Eliminar filas con NA en las medias móviles
+data_clean <- na.omit(data)
+
+# Crear el gráfico con las filas limpias
+ggplot(data_clean, aes(x = as.POSIXct(Gmt.time, format = "%d.%m.%Y %H:%M:%S"))) +
+  geom_line(aes(y = close, color = "Close Price")) +
+  geom_line(aes(y = MA_short, color = "50-period MA")) +
+  geom_line(aes(y = MA_long, color = "500-period MA")) +
+  labs(title = "EUR/USD Close Price with Moving Averages",
+       x = "Date", y = "Price") +
+  scale_color_manual(values = c("Close Price" = "black", 
+                                "50-period MA" = "blue", 
+                                "500-period MA" = "red")) +
+  theme_minimal()
+
+
+```
+
+##  Análisis de Rezagos
+
+Cómo se comporta la serie de tiempo con respecto a sus valores pasados, introduciendo rezagos.
+
+```{r}
+# Crear la serie de tiempo con frecuencia de 6 (observaciones diarias)
+ts_close <- ts(data$close, frequency = 6)  # 6 periodos por día
+```
+
+```{r}
+# Visualizar los rezagos con lag.plot
+lag.plot(ts_close, lags = 9, layout = c(3, 3), main = "Lag Plots of Close Prices (4-Hour Intervals)")
+
+```
+
+En cada uno de los gráficos, los puntos siguen una línea casi perfectamente recta, sugiriendo una **alta autocorrelación** entre los valores de la serie con sus rezagos cercanos.
+
+La pendiente positiva indica que cuando el valor anterior era alto, el valor actual también tiende a ser alto, y lo mismo sucede para valores bajos. Esto sugiere que **la serie es muy persistente**, es decir, los precios tienden a seguir una dirección similar en el corto plazo.
+
+Dado que no hay patrones dispersos o sin forma definida, se puede inferir que la serie no tiene cambios abruptos o comportamiento caótico entre los puntos cercanos. Esto podría indicar que **no hay mucha volatilidad** en los intervalos de 4 horas.
+
+## Análisis de Estacionalidad
+
+Para detectar si existe estacionalidad (patrones repetitivos), utilizaremos **decomposición** o **test de estacionalidad**.
+
+```{r}
+library(forecast)
+
+# Convertir los datos a una serie de tiempo (asumiendo que son horarios)
+ts_data <- ts(data$close, frequency = 24 * 30)  # 24 datos diarios, 30 días al mes
+
+# Descomposición STL
+decomposed <- stl(ts_data, s.window = "periodic")
+
+# Graficar la descomposición
+plot(decomposed)
+
+```
+
+En la gráfica de **descomposición de series de tiempo** que muestras, se visualizan los **componentes de la serie**: datos originales, estacionalidad, tendencia y residuales (remainder). A continuación, te explico cómo interpretar cada componente:
+
+### 1. **Datos Originales (data)**
+
+-   En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo.
+
+-   Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.
+
+### 2. **Componente Estacional (seasonal)**
+
+-   El segundo gráfico muestra un **patrón repetitivo y periódico**. Este patrón sugiere que hay **ciclos regulares** en la serie.
+
+-   La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal).
+
+**Interpretación**:
+
+-   **Mercados Forex** suelen tener patrones intradía o semanales, influenciados por la apertura y cierre de mercados (como los de Nueva York, Londres y Tokio).
+
+-   Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).
+
+### 3. **Componente de Tendencia (trend)**
+
+-   El tercer gráfico muestra una **tendencia suavizada** que sigue la dirección general del mercado.
+
+-   Observamos fases de **alzas y caídas**: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
+
+**Interpretación**:
+
+-   Este componente captura el **movimiento de largo plazo** del mercado. Aquí, parece que el mercado tiene ciclos de crecimiento seguidos de correcciones, algo común en activos como las divisas.
+
+### 4. **Componente de Residuos o Resto (remainder)**
+
+-   El último gráfico (remainder) muestra los **residuos** o la parte de los datos que no es explicada por la tendencia ni la estacionalidad.
+
+-   Estos residuos parecen ser **ruido blanco**, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
+
+**Interpretación**:
+
+-   Un buen modelo de descomposición debe dejar los residuos sin patrones claros, como sucede en este caso. Esto indica que la tendencia y la estacionalidad explican bien el comportamiento de la serie.
+
+Prueba de estacionalidad con adf.test:
+
+```{r}
+library(tseries)
+
+# Prueba de Dickey-Fuller aumentada para detectar estacionalidad
+adf_test <- adf.test(ts_data, alternative = "stationary")
+print(adf_test)
+
+```

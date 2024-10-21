@@ -3,3 +3,11 @@ información-del-dataset
 justificación-de-la-elección-del-dataset
 relación-con-el-signal-to-noise-ratio-snr
 importancia-de-analizar-este-dataset
+intro
+cálculo-de-medias-móviles-simples
+análisis-de-rezagos
+análisis-de-estacionalidad
+datos-originales-data
+componente-estacional-seasonal
+componente-de-tendencia-trend
+componente-de-residuos-o-resto-remainder
