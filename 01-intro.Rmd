@@ -97,14 +97,3 @@ En la gráfica de **descomposición de series de tiempo** se visualizan los **co
 3\. **Componente de Tendencia (trend):** El tercer gráfico muestra una **tendencia suavizada** que sigue la dirección general del mercado. Observamos fases de **alzas y caídas**: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
 
 4\. **Componente de Residuos o Resto (remainder):** El último gráfico (remainder) muestra los **residuos** o la parte de los datos que no es explicada por la tendencia ni la estacionalidad. Estos residuos parecen ser **ruido blanco**, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
-
-Prueba de estacionalidad con adf.test:
-
-```{r}
-library(tseries)
-
-# Prueba de Dickey-Fuller aumentada para detectar estacionalidad
-adf_test <- adf.test(ts_data, alternative = "stationary")
-print(adf_test)
-
-```
