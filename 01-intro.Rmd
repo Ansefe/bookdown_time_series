@@ -78,7 +78,7 @@ Para detectar si existe estacionalidad (patrones repetitivos), utilizaremos **de
 library(forecast)
 
 # Convertir los datos a una serie de tiempo (asumiendo que son horarios)
-ts_data <- ts(data$close, frequency = 24 * 30)  # 24 datos diarios, 30 días al mes
+ts_data <- ts(data$close, frequency = 6 * 365)  # 6 datos diarios, 365 días al año
 
 # Descomposición STL
 decomposed <- stl(ts_data, s.window = "periodic")

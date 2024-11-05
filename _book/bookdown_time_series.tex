@@ -87,7 +87,7 @@
 
 \title{EUR/USD}
 \author{Harvey Bastidas, Andrés Caicedo, Alexander Alvarado}
-\date{2024-10-21}
+\date{2024-11-04}
 
 \begin{document}
 \maketitle
@@ -222,6 +222,69 @@ En la gráfica de \textbf{descomposición de series de tiempo} se visualizan los
 3. \textbf{Componente de Tendencia (trend):} El tercer gráfico muestra una \textbf{tendencia suavizada} que sigue la dirección general del mercado. Observamos fases de \textbf{alzas y caídas}: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
 
 4. \textbf{Componente de Residuos o Resto (remainder):} El último gráfico (remainder) muestra los \textbf{residuos} o la parte de los datos que no es explicada por la tendencia ni la estacionalidad. Estos residuos parecen ser \textbf{ruido blanco}, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
+
+\chapter{Preprocesamiento y Visualización}\label{preprocesamiento-y-visualizaciuxf3n}
+
+\section{Descomposición de la Serie de Tiempo}\label{descomposiciuxf3n-de-la-serie-de-tiempo}
+
+En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de \textbf{tendencia}, \textbf{estacionalidad} y \textbf{residuos}.
+
+\includegraphics{bookdown_time_series_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+En la gráfica de \textbf{descomposición de series de tiempo} se visualizan los \textbf{componentes de la serie}: datos originales, estacionalidad, tendencia y residuales (remainder):
+
+1. \textbf{Datos Originales (data):} En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo. Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.
+
+2. \textbf{Componente Estacional (seasonal):} El segundo gráfico muestra un \textbf{patrón repetitivo y periódico}. Este patrón sugiere que hay \textbf{ciclos regulares} en la serie. La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal). Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).
+
+3. \textbf{Componente de Tendencia (trend):} El tercer gráfico muestra una \textbf{tendencia suavizada} que sigue la dirección general del mercado. Observamos fases de \textbf{alzas y caídas}: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.
+
+4. \textbf{Componente de Residuos o Resto (remainder):} El último gráfico (remainder) muestra los \textbf{residuos} o la parte de los datos que no es explicada por la tendencia ni la estacionalidad. Estos residuos parecen ser \textbf{ruido blanco}, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.
+
+\section{Prueba de Estacionariedad}\label{prueba-de-estacionariedad}
+
+La estacionariedad es importante en el análisis de series de tiempo porque indica si las propiedades estadísticas de la serie (como la media y la varianza) se mantienen constantes a lo largo del tiempo. Una serie estacionaria es generalmente más fácil de modelar y predecir.
+
+\begin{verbatim}
+## 
+##  Augmented Dickey-Fuller Test
+## 
+## data:  ts_data
+## Dickey-Fuller = -2.8283, Lag order = 30, p-value = 0.2269
+## alternative hypothesis: stationary
+\end{verbatim}
+
+La interpretación es la siguiente:
+
+\begin{itemize}
+\item
+  \textbf{Hipótesis nula (H0)}: La serie no es estacionaria (tiene una raíz unitaria).
+\item
+  \textbf{Hipótesis alternativa (H1)}: La serie es estacionaria.
+\end{itemize}
+
+Con un valor de p (\textbf{0.2269}) al ser mayor a 0.05, significa que no podemos rechazar la hipótesis nula, por lo tanto la prueba ADF sugiere que la serie no es estacionaria en su forma actual.
+
+\section{Diferenciación para Estacionariedad}\label{diferenciaciuxf3n-para-estacionariedad}
+
+Como la serie no es estacionaria, el siguiente paso es aplicar una diferenciación para intentar volverla estacionaria. La diferenciación ayuda a eliminar tendencias y hacer que las propiedades estadísticas de la serie se mantengan constantes a lo largo del tiempo.
+
+Aplicaremos una diferenciación de primer orden y realizaremos nuevamente la prueba ADF para verificar si la serie se ha vuelto estacionaria.
+
+\begin{verbatim}
+## 
+##  Augmented Dickey-Fuller Test
+## 
+## data:  ts_data_diff
+## Dickey-Fuller = -30.409, Lag order = 30, p-value = 0.01
+## alternative hypothesis: stationary
+\end{verbatim}
+
+Con el valor p (0.01) indica que podemos rechazar la hipótesis nula con un nivel de confianza del 95\% y por lo tanto la serie diferenciada \textbf{es estacionaria} después de la diferenciación de primer orden.
+
+\section{Justificación de la Transformación}\label{justificaciuxf3n-de-la-transformaciuxf3n}
+
+Dado que la serie original no era estacionaria, fue necesario aplicar una diferenciación de primer orden para hacerla estacionaria. Esta transformación es importante para poder aplicar modelos de series de tiempo que asumen estacionariedad y para obtener mejores resultados en el análisis de patrones y predicciones.
 
   \bibliography{book.bib,packages.bib}
 

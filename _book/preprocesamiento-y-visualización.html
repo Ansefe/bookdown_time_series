@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 3 Preprocesamiento y Visualización | EUR/USD</title>
+<meta name="author" content="Harvey Bastidas, Andrés Caicedo, Alexander Alvarado">
+<meta name="description" content="3.1 Descomposición de la Serie de Tiempo En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de tendencia, estacionalidad y residuos. En la...">
+<meta name="generator" content="bookdown 0.40 with bs4_book()">
+<meta property="og:title" content="Chapter 3 Preprocesamiento y Visualización | EUR/USD">
+<meta property="og:type" content="book">
+<meta property="og:description" content="3.1 Descomposición de la Serie de Tiempo En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de tendencia, estacionalidad y residuos. En la...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 3 Preprocesamiento y Visualización | EUR/USD">
+<meta name="twitter:description" content="3.1 Descomposición de la Serie de Tiempo En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de tendencia, estacionalidad y residuos. En la...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">EUR/USD</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Justificación de elección del Dataset</a></li>
+<li><a class="" href="intro.html"><span class="header-section-number">2</span> Estructura de los datos</a></li>
+<li><a class="active" href="preprocesamiento-y-visualizaci%C3%B3n.html"><span class="header-section-number">3</span> Preprocesamiento y Visualización</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="preprocesamiento-y-visualización" class="section level1" number="3">
+<h1>
+<span class="header-section-number">3</span> Preprocesamiento y Visualización<a class="anchor" aria-label="anchor" href="#preprocesamiento-y-visualizaci%C3%B3n"><i class="fas fa-link"></i></a>
+</h1>
+<div id="descomposición-de-la-serie-de-tiempo" class="section level2" number="3.1">
+<h2>
+<span class="header-section-number">3.1</span> Descomposición de la Serie de Tiempo<a class="anchor" aria-label="anchor" href="#descomposici%C3%B3n-de-la-serie-de-tiempo"><i class="fas fa-link"></i></a>
+</h2>
+<p>En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de <strong>tendencia</strong>, <strong>estacionalidad</strong> y <strong>residuos</strong>.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/unnamed-chunk-8-1.png" width="672"></div>
+<p>En la gráfica de <strong>descomposición de series de tiempo</strong> se visualizan los <strong>componentes de la serie</strong>: datos originales, estacionalidad, tendencia y residuales (remainder):</p>
+<p>1. <strong>Datos Originales (data):</strong> En la primera gráfica (data), se observan los valores de cierre a lo largo del tiempo. Vemos fluctuaciones en los precios con algunas subidas y bajadas claras, lo que indica la volatilidad normal del mercado Forex.</p>
+<p>2. <strong>Componente Estacional (seasonal):</strong> El segundo gráfico muestra un <strong>patrón repetitivo y periódico</strong>. Este patrón sugiere que hay <strong>ciclos regulares</strong> en la serie. La estacionalidad se mantiene constante a lo largo del tiempo, lo que indica que ciertos movimientos en el mercado se repiten con una periodicidad fija (en este caso, podría ser diaria o semanal). Es probable que este componente estacional refleje la actividad cíclica en horarios específicos o días determinados, como mayor volatilidad durante sesiones overlap (como entre Londres y Nueva York).</p>
+<p>3. <strong>Componente de Tendencia (trend):</strong> El tercer gráfico muestra una <strong>tendencia suavizada</strong> que sigue la dirección general del mercado. Observamos fases de <strong>alzas y caídas</strong>: primero hay una subida clara, luego una caída, y finalmente otra leve tendencia hacia la estabilidad.</p>
+<p>4. <strong>Componente de Residuos o Resto (remainder):</strong> El último gráfico (remainder) muestra los <strong>residuos</strong> o la parte de los datos que no es explicada por la tendencia ni la estacionalidad. Estos residuos parecen ser <strong>ruido blanco</strong>, con fluctuaciones alrededor de cero, lo que indica que no hay patrones significativos adicionales no capturados por los otros componentes.</p>
+</div>
+<div id="prueba-de-estacionariedad" class="section level2" number="3.2">
+<h2>
+<span class="header-section-number">3.2</span> Prueba de Estacionariedad<a class="anchor" aria-label="anchor" href="#prueba-de-estacionariedad"><i class="fas fa-link"></i></a>
+</h2>
+<p>La estacionariedad es importante en el análisis de series de tiempo porque indica si las propiedades estadísticas de la serie (como la media y la varianza) se mantienen constantes a lo largo del tiempo. Una serie estacionaria es generalmente más fácil de modelar y predecir.</p>
+<pre><code>## 
+##  Augmented Dickey-Fuller Test
+## 
+## data:  ts_data
+## Dickey-Fuller = -2.8283, Lag order = 30, p-value = 0.2269
+## alternative hypothesis: stationary</code></pre>
+<p>La interpretación es la siguiente:</p>
+<ul>
+<li><p><strong>Hipótesis nula (H0)</strong>: La serie no es estacionaria (tiene una raíz unitaria).</p></li>
+<li><p><strong>Hipótesis alternativa (H1)</strong>: La serie es estacionaria.</p></li>
+</ul>
+<p>Con un valor de p (<strong>0.2269</strong>) al ser mayor a 0.05, significa que no podemos rechazar la hipótesis nula, por lo tanto la prueba ADF sugiere que la serie no es estacionaria en su forma actual.</p>
+</div>
+<div id="diferenciación-para-estacionariedad" class="section level2" number="3.3">
+<h2>
+<span class="header-section-number">3.3</span> Diferenciación para Estacionariedad<a class="anchor" aria-label="anchor" href="#diferenciaci%C3%B3n-para-estacionariedad"><i class="fas fa-link"></i></a>
+</h2>
+<p>Como la serie no es estacionaria, el siguiente paso es aplicar una diferenciación para intentar volverla estacionaria. La diferenciación ayuda a eliminar tendencias y hacer que las propiedades estadísticas de la serie se mantengan constantes a lo largo del tiempo.</p>
+<p>Aplicaremos una diferenciación de primer orden y realizaremos nuevamente la prueba ADF para verificar si la serie se ha vuelto estacionaria.</p>
+<pre><code>## 
+##  Augmented Dickey-Fuller Test
+## 
+## data:  ts_data_diff
+## Dickey-Fuller = -30.409, Lag order = 30, p-value = 0.01
+## alternative hypothesis: stationary</code></pre>
+<p>Con el valor p (0.01) indica que podemos rechazar la hipótesis nula con un nivel de confianza del 95% y por lo tanto la serie diferenciada <strong>es estacionaria</strong> después de la diferenciación de primer orden.</p>
+</div>
+<div id="justificación-de-la-transformación" class="section level2" number="3.4">
+<h2>
+<span class="header-section-number">3.4</span> Justificación de la Transformación<a class="anchor" aria-label="anchor" href="#justificaci%C3%B3n-de-la-transformaci%C3%B3n"><i class="fas fa-link"></i></a>
+</h2>
+<p>Dado que la serie original no era estacionaria, fue necesario aplicar una diferenciación de primer orden para hacerla estacionaria. Esta transformación es importante para poder aplicar modelos de series de tiempo que asumen estacionariedad y para obtener mejores resultados en el análisis de patrones y predicciones.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="intro.html"><span class="header-section-number">2</span> Estructura de los datos</a></div>
+<div class="empty"></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#preprocesamiento-y-visualizaci%C3%B3n"><span class="header-section-number">3</span> Preprocesamiento y Visualización</a></li>
+<li><a class="nav-link" href="#descomposici%C3%B3n-de-la-serie-de-tiempo"><span class="header-section-number">3.1</span> Descomposición de la Serie de Tiempo</a></li>
+<li><a class="nav-link" href="#prueba-de-estacionariedad"><span class="header-section-number">3.2</span> Prueba de Estacionariedad</a></li>
+<li><a class="nav-link" href="#diferenciaci%C3%B3n-para-estacionariedad"><span class="header-section-number">3.3</span> Diferenciación para Estacionariedad</a></li>
+<li><a class="nav-link" href="#justificaci%C3%B3n-de-la-transformaci%C3%B3n"><span class="header-section-number">3.4</span> Justificación de la Transformación</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>EUR/USD</strong>" was written by Harvey Bastidas, Andrés Caicedo, Alexander Alvarado. It was last built on 2024-11-04.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

@@ -7,3 +7,8 @@ intro
 cálculo-de-medias-móviles-simples
 análisis-de-rezagos
 análisis-de-estacionalidad
+preprocesamiento-y-visualización
+descomposición-de-la-serie-de-tiempo
+prueba-de-estacionariedad
+diferenciación-para-estacionariedad
+justificación-de-la-transformación
