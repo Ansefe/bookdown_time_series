@@ -11,4 +11,11 @@ preprocesamiento-y-visualización
 descomposición-de-la-serie-de-tiempo
 prueba-de-estacionariedad
 diferenciación-para-estacionariedad
+verificación-de-estacionariedad-en-la-serie-diferenciada
 justificación-de-la-transformación
+análisis-de-autocorrelación
+modelo-arima
+detección-de-puntos-de-cambio
+media-cero-de-los-residuos
+independencia-de-los-residuos
+distribución-de-los-residuos

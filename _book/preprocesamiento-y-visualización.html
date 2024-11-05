@@ -6,17 +6,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 3 Preprocesamiento y Visualización | EUR/USD</title>
 <meta name="author" content="Harvey Bastidas, Andrés Caicedo, Alexander Alvarado">
-<meta name="description" content="3.1 Descomposición de la Serie de Tiempo En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de tendencia, estacionalidad y residuos. En la...">
-<meta name="generator" content="bookdown 0.40 with bs4_book()">
+<meta name="description" content="En este análisis, trabajaremos con el dataset de tipo de cambio EUR/USD de Forex proporcionado, el cual incluye datos históricos de 2003 a 2021. El objetivo es estudiar las tendencias,...">
+<meta name="generator" content="bookdown 0.41 with bs4_book()">
 <meta property="og:title" content="Chapter 3 Preprocesamiento y Visualización | EUR/USD">
 <meta property="og:type" content="book">
-<meta property="og:description" content="3.1 Descomposición de la Serie de Tiempo En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de tendencia, estacionalidad y residuos. En la...">
+<meta property="og:description" content="En este análisis, trabajaremos con el dataset de tipo de cambio EUR/USD de Forex proporcionado, el cual incluye datos históricos de 2003 a 2021. El objetivo es estudiar las tendencias,...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 3 Preprocesamiento y Visualización | EUR/USD">
-<meta name="twitter:description" content="3.1 Descomposición de la Serie de Tiempo En esta etapa se busca realizar la descomposición de la serie de tiempo para identificar los componentes de tendencia, estacionalidad y residuos. En la...">
+<meta name="twitter:description" content="En este análisis, trabajaremos con el dataset de tipo de cambio EUR/USD de Forex proporcionado, el cual incluye datos históricos de 2003 a 2021. El objetivo es estudiar las tendencias,...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
-<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.8.0/transition.js"></script><script src="libs/bs3compat-0.8.0/tabs.js"></script><script src="libs/bs3compat-0.8.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
 <script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
@@ -45,6 +45,8 @@
 <li><a class="" href="index.html"><span class="header-section-number">1</span> Justificación de elección del Dataset</a></li>
 <li><a class="" href="intro.html"><span class="header-section-number">2</span> Estructura de los datos</a></li>
 <li><a class="active" href="preprocesamiento-y-visualizaci%C3%B3n.html"><span class="header-section-number">3</span> Preprocesamiento y Visualización</a></li>
+<li><a class="" href="modelo-arima.html"><span class="header-section-number">4</span> Modelo ARIMA</a></li>
+<li><a class="" href="detecci%C3%B3n-de-puntos-de-cambio.html"><span class="header-section-number">5</span> Detección de Puntos de Cambio</a></li>
 </ul>
 
         <div class="book-extra">
@@ -56,6 +58,7 @@
 <h1>
 <span class="header-section-number">3</span> Preprocesamiento y Visualización<a class="anchor" aria-label="anchor" href="#preprocesamiento-y-visualizaci%C3%B3n"><i class="fas fa-link"></i></a>
 </h1>
+<p>En este análisis, trabajaremos con el dataset de tipo de cambio EUR/USD de Forex proporcionado, el cual incluye datos históricos de 2003 a 2021. El objetivo es estudiar las tendencias, estacionalidad y comportamiento estructural de la serie de tiempo. Además, evaluaremos si es necesario realizar transformaciones en la serie para estabilizar la varianza y facilitar la predicción.</p>
 <div id="descomposición-de-la-serie-de-tiempo" class="section level2" number="3.1">
 <h2>
 <span class="header-section-number">3.1</span> Descomposición de la Serie de Tiempo<a class="anchor" aria-label="anchor" href="#descomposici%C3%B3n-de-la-serie-de-tiempo"><i class="fas fa-link"></i></a>
@@ -73,18 +76,121 @@
 <span class="header-section-number">3.2</span> Prueba de Estacionariedad<a class="anchor" aria-label="anchor" href="#prueba-de-estacionariedad"><i class="fas fa-link"></i></a>
 </h2>
 <p>La estacionariedad es importante en el análisis de series de tiempo porque indica si las propiedades estadísticas de la serie (como la media y la varianza) se mantienen constantes a lo largo del tiempo. Una serie estacionaria es generalmente más fácil de modelar y predecir.</p>
-<pre><code>## 
-##  Augmented Dickey-Fuller Test
+<pre><code>## Augmented Dickey-Fuller Test 
+## alternative: stationary 
+##  
+## Type 1: no drift no trend 
+##       lag    ADF p.value
+##  [1,]   0 -0.135   0.606
+##  [2,]   1 -0.133   0.606
+##  [3,]   2 -0.135   0.606
+##  [4,]   3 -0.131   0.607
+##  [5,]   4 -0.143   0.603
+##  [6,]   5 -0.146   0.603
+##  [7,]   6 -0.149   0.602
+##  [8,]   7 -0.147   0.602
+##  [9,]   8 -0.155   0.600
+## [10,]   9 -0.156   0.600
+## [11,]  10 -0.158   0.599
+## [12,]  11 -0.174   0.594
+## [13,]  12 -0.172   0.595
+## [14,]  13 -0.169   0.596
+## [15,]  14 -0.166   0.597
+## Type 2: with drift no trend 
+##       lag   ADF p.value
+##  [1,]   0 -2.20   0.248
+##  [2,]   1 -2.21   0.244
+##  [3,]   2 -2.23   0.238
+##  [4,]   3 -2.19   0.253
+##  [5,]   4 -2.20   0.250
+##  [6,]   5 -2.20   0.248
+##  [7,]   6 -2.21   0.244
+##  [8,]   7 -2.20   0.248
+##  [9,]   8 -2.19   0.254
+## [10,]   9 -2.18   0.257
+## [11,]  10 -2.18   0.255
+## [12,]  11 -2.18   0.257
+## [13,]  12 -2.18   0.257
+## [14,]  13 -2.16   0.263
+## [15,]  14 -2.17   0.258
+## Type 3: with drift and trend 
+##       lag   ADF p.value
+##  [1,]   0 -2.91   0.192
+##  [2,]   1 -2.93   0.186
+##  [3,]   2 -2.94   0.180
+##  [4,]   3 -2.90   0.196
+##  [5,]   4 -2.90   0.197
+##  [6,]   5 -2.90   0.196
+##  [7,]   6 -2.91   0.193
+##  [8,]   7 -2.90   0.197
+##  [9,]   8 -2.88   0.207
+## [10,]   9 -2.87   0.210
+## [11,]  10 -2.87   0.209
+## [12,]  11 -2.85   0.219
+## [13,]  12 -2.85   0.218
+## [14,]  13 -2.84   0.223
+## [15,]  14 -2.85   0.216
+## ---- 
+## Note: in fact, p.value = 0.01 means p.value &lt;= 0.01</code></pre>
+<pre><code>## $type1
+##       lag        ADF   p.value
+##  [1,]   0 -0.1349353 0.6056581
+##  [2,]   1 -0.1332845 0.6061322
+##  [3,]   2 -0.1350012 0.6056392
+##  [4,]   3 -0.1311022 0.6067589
+##  [5,]   4 -0.1432485 0.6032707
+##  [6,]   5 -0.1455745 0.6026027
+##  [7,]   6 -0.1491280 0.6015823
+##  [8,]   7 -0.1466525 0.6022932
+##  [9,]   8 -0.1553530 0.5997946
+## [10,]   9 -0.1558747 0.5996447
+## [11,]  10 -0.1575228 0.5991714
+## [12,]  11 -0.1743717 0.5943327
+## [13,]  12 -0.1723248 0.5949206
+## [14,]  13 -0.1686293 0.5959819
+## [15,]  14 -0.1662663 0.5966605
 ## 
-## data:  ts_data
-## Dickey-Fuller = -2.8283, Lag order = 30, p-value = 0.2269
-## alternative hypothesis: stationary</code></pre>
+## $type2
+##       lag       ADF   p.value
+##  [1,]   0 -2.199690 0.2481241
+##  [2,]   1 -2.210308 0.2438767
+##  [3,]   2 -2.225752 0.2376991
+##  [4,]   3 -2.186315 0.2534741
+##  [5,]   4 -2.196090 0.2495641
+##  [6,]   5 -2.199991 0.2480038
+##  [7,]   6 -2.210932 0.2436273
+##  [8,]   7 -2.199519 0.2481923
+##  [9,]   8 -2.185380 0.2538481
+## [10,]   9 -2.178336 0.2566657
+## [11,]  10 -2.183564 0.2545744
+## [12,]  11 -2.178602 0.2565592
+## [13,]  12 -2.178490 0.2566041
+## [14,]  13 -2.163515 0.2625942
+## [15,]  14 -2.174827 0.2580694
+## 
+## $type3
+##       lag       ADF   p.value
+##  [1,]   0 -2.911720 0.1919072
+##  [2,]   1 -2.925278 0.1861988
+##  [3,]   2 -2.940306 0.1798712
+##  [4,]   3 -2.902268 0.1958871
+##  [5,]   4 -2.899542 0.1970351
+##  [6,]   5 -2.901407 0.1962497
+##  [7,]   6 -2.909540 0.1928254
+##  [8,]   7 -2.900196 0.1967594
+##  [9,]   8 -2.875536 0.2071427
+## [10,]   9 -2.867569 0.2104971
+## [11,]  10 -2.871608 0.2087965
+## [12,]  11 -2.848029 0.2187245
+## [13,]  12 -2.850350 0.2177475
+## [14,]  13 -2.838511 0.2227323
+## [15,]  14 -2.853430 0.2164506</code></pre>
 <p>La interpretación es la siguiente:</p>
 <ul>
 <li><p><strong>Hipótesis nula (H0)</strong>: La serie no es estacionaria (tiene una raíz unitaria).</p></li>
 <li><p><strong>Hipótesis alternativa (H1)</strong>: La serie es estacionaria.</p></li>
 </ul>
-<p>Con un valor de p (<strong>0.2269</strong>) al ser mayor a 0.05, significa que no podemos rechazar la hipótesis nula, por lo tanto la prueba ADF sugiere que la serie no es estacionaria en su forma actual.</p>
+<p>En todas las configuraciones (sin tendencia ni drift, con drift, y con drift y tendencia), los p-valores son mayores a 0.05. Esto implica que, bajo ninguna de estas configuraciones, la serie es estacionaria en su forma actual.</p>
 </div>
 <div id="diferenciación-para-estacionariedad" class="section level2" number="3.3">
 <h2>
@@ -92,25 +198,153 @@
 </h2>
 <p>Como la serie no es estacionaria, el siguiente paso es aplicar una diferenciación para intentar volverla estacionaria. La diferenciación ayuda a eliminar tendencias y hacer que las propiedades estadísticas de la serie se mantengan constantes a lo largo del tiempo.</p>
 <p>Aplicaremos una diferenciación de primer orden y realizaremos nuevamente la prueba ADF para verificar si la serie se ha vuelto estacionaria.</p>
-<pre><code>## 
-##  Augmented Dickey-Fuller Test
-## 
-## data:  ts_data_diff
-## Dickey-Fuller = -30.409, Lag order = 30, p-value = 0.01
-## alternative hypothesis: stationary</code></pre>
-<p>Con el valor p (0.01) indica que podemos rechazar la hipótesis nula con un nivel de confianza del 95% y por lo tanto la serie diferenciada <strong>es estacionaria</strong> después de la diferenciación de primer orden.</p>
+<p>Para este análisis, utilizaremos la columna de cierre (<code>Close</code>) del dataset como nuestra serie de tiempo principal. Convertiremos los datos a formato de serie temporal.</p>
+<p>Aplicaremos una primera diferenciación.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/differencing-1.png" width="672"></div>
+<p>Después de la primera diferenciación, se puede obtener que por cada tick quedó el valor del return (x-x_ant) ue es el resultado de la aplicación de la dirferenciaciónd e primer orden. Como se aprecia, la serie ya no tiene una tendencia sino que presenta un comportamiento estacionario, sinembargo, esta serie de tiempo parece ser menos predecible que la serie de tiempo antes de la diferenciación, ya que evidentemente tiene mayor desviación estándar y por tanto un mayor Coeficiente de Variación y un menor SNR.</p>
 </div>
-<div id="justificación-de-la-transformación" class="section level2" number="3.4">
+<div id="verificación-de-estacionariedad-en-la-serie-diferenciada" class="section level2" number="3.4">
 <h2>
-<span class="header-section-number">3.4</span> Justificación de la Transformación<a class="anchor" aria-label="anchor" href="#justificaci%C3%B3n-de-la-transformaci%C3%B3n"><i class="fas fa-link"></i></a>
+<span class="header-section-number">3.4</span> Verificación de Estacionariedad en la Serie Diferenciada<a class="anchor" aria-label="anchor" href="#verificaci%C3%B3n-de-estacionariedad-en-la-serie-diferenciada"><i class="fas fa-link"></i></a>
+</h2>
+<p>Aplicamos nuevamente la prueba Dickey-Fuller a la serie diferenciada para verificar si ahora es estacionaria.</p>
+<pre><code>## Augmented Dickey-Fuller Test 
+## alternative: stationary 
+##  
+## Type 1: no drift no trend 
+##       lag    ADF p.value
+##  [1,]   0 -169.3    0.01
+##  [2,]   1 -119.0    0.01
+##  [3,]   2  -99.3    0.01
+##  [4,]   3  -84.8    0.01
+##  [5,]   4  -75.7    0.01
+##  [6,]   5  -68.7    0.01
+##  [7,]   6  -64.1    0.01
+##  [8,]   7  -60.1    0.01
+##  [9,]   8  -56.8    0.01
+## [10,]   9  -53.7    0.01
+## [11,]  10  -50.9    0.01
+## [12,]  11  -48.8    0.01
+## [13,]  12  -47.3    0.01
+## [14,]  13  -45.4    0.01
+## [15,]  14  -43.7    0.01
+## Type 2: with drift no trend 
+##       lag    ADF p.value
+##  [1,]   0 -169.3    0.01
+##  [2,]   1 -119.0    0.01
+##  [3,]   2  -99.3    0.01
+##  [4,]   3  -84.8    0.01
+##  [5,]   4  -75.7    0.01
+##  [6,]   5  -68.7    0.01
+##  [7,]   6  -64.1    0.01
+##  [8,]   7  -60.1    0.01
+##  [9,]   8  -56.8    0.01
+## [10,]   9  -53.7    0.01
+## [11,]  10  -50.9    0.01
+## [12,]  11  -48.8    0.01
+## [13,]  12  -47.3    0.01
+## [14,]  13  -45.4    0.01
+## [15,]  14  -43.7    0.01
+## Type 3: with drift and trend 
+##       lag    ADF p.value
+##  [1,]   0 -169.3    0.01
+##  [2,]   1 -119.0    0.01
+##  [3,]   2  -99.3    0.01
+##  [4,]   3  -84.9    0.01
+##  [5,]   4  -75.7    0.01
+##  [6,]   5  -68.7    0.01
+##  [7,]   6  -64.1    0.01
+##  [8,]   7  -60.1    0.01
+##  [9,]   8  -56.8    0.01
+## [10,]   9  -53.7    0.01
+## [11,]  10  -50.9    0.01
+## [12,]  11  -48.8    0.01
+## [13,]  12  -47.3    0.01
+## [14,]  13  -45.4    0.01
+## [15,]  14  -43.7    0.01
+## ---- 
+## Note: in fact, p.value = 0.01 means p.value &lt;= 0.01</code></pre>
+<pre><code>## $type1
+##       lag        ADF p.value
+##  [1,]   0 -169.27722    0.01
+##  [2,]   1 -119.03874    0.01
+##  [3,]   2  -99.30334    0.01
+##  [4,]   3  -84.84969    0.01
+##  [5,]   4  -75.69590    0.01
+##  [6,]   5  -68.70703    0.01
+##  [7,]   6  -64.07591    0.01
+##  [8,]   7  -60.05652    0.01
+##  [9,]   8  -56.77621    0.01
+## [10,]   9  -53.68723    0.01
+## [11,]  10  -50.91061    0.01
+## [12,]  11  -48.81278    0.01
+## [13,]  12  -47.29027    0.01
+## [14,]  13  -45.38630    0.01
+## [15,]  14  -43.68676    0.01
+## 
+## $type2
+##       lag        ADF p.value
+##  [1,]   0 -169.27433    0.01
+##  [2,]   1 -119.03671    0.01
+##  [3,]   2  -99.30166    0.01
+##  [4,]   3  -84.84825    0.01
+##  [5,]   4  -75.69462    0.01
+##  [6,]   5  -68.70587    0.01
+##  [7,]   6  -64.07484    0.01
+##  [8,]   7  -60.05550    0.01
+##  [9,]   8  -56.77525    0.01
+## [10,]   9  -53.68632    0.01
+## [11,]  10  -50.90973    0.01
+## [12,]  11  -48.81194    0.01
+## [13,]  12  -47.28946    0.01
+## [14,]  13  -45.38553    0.01
+## [15,]  14  -43.68601    0.01
+## 
+## $type3
+##       lag        ADF p.value
+##  [1,]   0 -169.27489    0.01
+##  [2,]   1 -119.03832    0.01
+##  [3,]   2  -99.30402    0.01
+##  [4,]   3  -84.85094    0.01
+##  [5,]   4  -75.69772    0.01
+##  [6,]   5  -68.70929    0.01
+##  [7,]   6  -64.07866    0.01
+##  [8,]   7  -60.05942    0.01
+##  [9,]   8  -56.77944    0.01
+## [10,]   9  -53.69075    0.01
+## [11,]  10  -50.91391    0.01
+## [12,]  11  -48.81642    0.01
+## [13,]  12  -47.29426    0.01
+## [14,]  13  -45.39063    0.01
+## [15,]  14  -43.69120    0.01</code></pre>
+</div>
+<div id="justificación-de-la-transformación" class="section level2" number="3.5">
+<h2>
+<span class="header-section-number">3.5</span> Justificación de la Transformación<a class="anchor" aria-label="anchor" href="#justificaci%C3%B3n-de-la-transformaci%C3%B3n"><i class="fas fa-link"></i></a>
 </h2>
 <p>Dado que la serie original no era estacionaria, fue necesario aplicar una diferenciación de primer orden para hacerla estacionaria. Esta transformación es importante para poder aplicar modelos de series de tiempo que asumen estacionariedad y para obtener mejores resultados en el análisis de patrones y predicciones.</p>
-
+</div>
+<div id="análisis-de-autocorrelación" class="section level2" number="3.6">
+<h2>
+<span class="header-section-number">3.6</span> Análisis de Autocorrelación<a class="anchor" aria-label="anchor" href="#an%C3%A1lisis-de-autocorrelaci%C3%B3n"><i class="fas fa-link"></i></a>
+</h2>
+<p>Graficaremos las funciones de autocorrelación (ACF) y autocorrelación parcial (PACF) para observar la dependencia temporal en los datos diferenciados.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Graficar ACF y PACF de la serie diferenciada</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">Acf</span><span class="op">(</span><span class="va">forex_diff</span>, main <span class="op">=</span> <span class="st">"ACF de la Serie Diferenciada"</span><span class="op">)</span></span>
+<span><span class="fu">Pacf</span><span class="op">(</span><span class="va">forex_diff</span>, main <span class="op">=</span> <span class="st">"PACF de la Serie Diferenciada"</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/acf-pacf-1.png" width="672"></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>La ACF a la izquierda muestra cómo los valores actuales de la serie diferenciada están correlacionados con sus valores en diferentes rezagos (lags). Algunos puntos de la ACF están fuera de las líneas de significancia (líneas punteadas azules), lo cual sugiere que hay correlaciones significativas en esos rezagos específicos. Este patrón puede ser indicativo de que aún existen estructuras autoregresivas o de medias móviles en la serie, incluso después de la diferenciación.</p>
+<p>La PACF a la derecha muestra la autocorrelación de la serie diferenciada en cada rezago eliminando el efecto de los rezagos intermedios. Similar a la ACF, algunos valores están fuera de las líneas de significancia, lo que indica correlación significativa en esos rezagos específicos. Este patrón puede sugerir la presencia de efectos autoregresivos en los rezagos correspondientes.</p>
+<p>Los picos significativos en la ACF y PACF sugieren que la serie diferenciada podría beneficiarse de un modelo ARIMA para capturar la estructura subyacente. Dependiendo de la cantidad de rezagos significativos en cada gráfico, podría ser apropiado un modelo ARIMA específico (por ejemplo, con ciertos órdenes autoregresivos y de medias móviles).</p>
 </div>
 </div>
   <div class="chapter-nav">
 <div class="prev"><a href="intro.html"><span class="header-section-number">2</span> Estructura de los datos</a></div>
-<div class="empty"></div>
+<div class="next"><a href="modelo-arima.html"><span class="header-section-number">4</span> Modelo ARIMA</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
@@ -118,7 +352,9 @@
 <li><a class="nav-link" href="#descomposici%C3%B3n-de-la-serie-de-tiempo"><span class="header-section-number">3.1</span> Descomposición de la Serie de Tiempo</a></li>
 <li><a class="nav-link" href="#prueba-de-estacionariedad"><span class="header-section-number">3.2</span> Prueba de Estacionariedad</a></li>
 <li><a class="nav-link" href="#diferenciaci%C3%B3n-para-estacionariedad"><span class="header-section-number">3.3</span> Diferenciación para Estacionariedad</a></li>
-<li><a class="nav-link" href="#justificaci%C3%B3n-de-la-transformaci%C3%B3n"><span class="header-section-number">3.4</span> Justificación de la Transformación</a></li>
+<li><a class="nav-link" href="#verificaci%C3%B3n-de-estacionariedad-en-la-serie-diferenciada"><span class="header-section-number">3.4</span> Verificación de Estacionariedad en la Serie Diferenciada</a></li>
+<li><a class="nav-link" href="#justificaci%C3%B3n-de-la-transformaci%C3%B3n"><span class="header-section-number">3.5</span> Justificación de la Transformación</a></li>
+<li><a class="nav-link" href="#an%C3%A1lisis-de-autocorrelaci%C3%B3n"><span class="header-section-number">3.6</span> Análisis de Autocorrelación</a></li>
 </ul>
 
       <div class="book-extra">
@@ -135,7 +371,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>EUR/USD</strong>" was written by Harvey Bastidas, Andrés Caicedo, Alexander Alvarado. It was last built on 2024-11-04.</p>
+    <p>"<strong>EUR/USD</strong>" was written by Harvey Bastidas, Andrés Caicedo, Alexander Alvarado. It was last built on 2024-11-05.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
