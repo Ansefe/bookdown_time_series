@@ -120,7 +120,7 @@ La PACF a la derecha muestra la autocorrelación de la serie diferenciada en cad
 
 Los picos significativos en la ACF y PACF sugieren que la serie diferenciada podría beneficiarse de un modelo ARIMA para capturar la estructura subyacente. Dependiendo de la cantidad de rezagos significativos en cada gráfico, podría ser apropiado un modelo ARIMA específico (por ejemplo, con ciertos órdenes autoregresivos y de medias móviles).
 
-# Modelo ARIMA
+## Modelo ARIMA
 
 Utilizaremos `auto.arima` para identificar el mejor modelo ARIMA para los datos.
 
@@ -132,7 +132,7 @@ summary(forex_arima)
 
 El modelo ajustado para la serie forex_diff es un ARIMA(0,0,0) con media cero, lo que sugiere que la serie no presenta patrones autoregresivos ni de medias móviles significativos, siendo esencialmente ruido blanco. El valor de sigma\^2 = 8.978×10 −6 representa la varianza del error, con una alta verosimilitud (log likelihood) de 126732.8. Los criterios de información, AIC y BIC, son de -253463.6 y -253455.4, respectivamente, indicando un buen ajuste para este modelo sencillo. Las medidas de error en el conjunto de entrenamiento muestran un error medio (ME) cercano a cero (1.30e-06) y un RMSE de 0.002996, lo cual refleja una precisión razonable. La autocorrelación en el primer rezago (ACF1) es baja (0.0035), sugiriendo independencia en los residuos.
 
-# Detección de Puntos de Cambio
+## Detección de Puntos de Cambio
 
 Usaremos la función `cpt.mean` para detectar cambios significativos en la media de la serie.
 
