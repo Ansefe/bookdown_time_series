@@ -1,3 +1,5 @@
+tab:cargar-datos
+tab:normalizar-close
 justificación-de-elección-del-dataset
 información-del-dataset
 justificación-de-la-elección-del-dataset
@@ -19,3 +21,11 @@ detección-de-puntos-de-cambio
 media-cero-de-los-residuos
 independencia-de-los-residuos
 distribución-de-los-residuos
+análisis-de-series-de-tiempo-con-el-método-holt-winters
+carga-de-bibliotecas-y-datos
+normalización-de-la-columna-close
+descomposición-estacional
+suavizado-exponencial-simple
+suavizado-exponencial-doble-aditivo-y-multiplicativo
+calculo-de-error
+conclusiones

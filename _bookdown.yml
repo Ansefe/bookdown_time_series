@@ -7,3 +7,4 @@ rmd_files:
   - "index.Rmd"      # Index
   - "01-intro.Rmd"      # Introducción
   - "02-preprocesamiento.Rmd"  # Preprocesamiento y visualización
+  - "03-holt_winters.Rmd"  # holt_winters

@@ -111,6 +111,20 @@
   \thm@postskip=\thm@preskip
 }
 \makeatother
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -127,7 +141,7 @@
 
 \title{EUR/USD}
 \author{Harvey Bastidas, Andrés Caicedo, Alexander Alvarado}
-\date{2024-11-05}
+\date{2024-11-11}
 
 \begin{document}
 \maketitle
@@ -668,6 +682,112 @@ Analizaremos la normalidad de los residuos con un gráfico Q-Q.
 \includegraphics{bookdown_time_series_files/figure-latex/residuals-qqplot-1.pdf}
 
 El gráfico Q-Q muestra que los residuos del modelo se alinean con la normalidad en el centro de la distribución, pero presentan desviaciones significativas en las colas. Esto sugiere que, aunque los residuos se comportan aproximadamente como una distribución normal en el centro, tienen colas más pesadas de lo esperado, lo que indica la presencia de valores extremos.
+
+\chapter{Análisis de Series de Tiempo con el Método Holt-Winters}\label{anuxe1lisis-de-series-de-tiempo-con-el-muxe9todo-holt-winters}
+
+Este documento realiza un análisis de series de tiempo utilizando el método de Holt-Winters aplicado exclusivamente a la columna \texttt{close} del dataset \texttt{EURUSD\_ForexTrading\_4hrs.csv}. Se utilizarán solo 6000 datos, normalizando la columna \texttt{close}, dividiendo en conjunto de entrenamiento y prueba, y calculando la métricas de error MAE en el conjunto de entrenamiento y en el conjunto de prueba.
+
+\section{Carga de Bibliotecas y Datos}\label{carga-de-bibliotecas-y-datos}
+
+\begin{table}
+\centering
+\caption{\label{tab:cargar-datos}Primeras filas del dataset EURUSD ForexTrading 4hrs Columna close}
+\centering
+\begin{tabular}[t]{r}
+\hline
+close\\
+\hline
+1.12274\\
+\hline
+1.12126\\
+\hline
+1.12113\\
+\hline
+1.12174\\
+\hline
+1.12712\\
+\hline
+1.12804\\
+\hline
+\end{tabular}
+\end{table}
+
+El dataset \texttt{EURUSD\_ForexTrading\_4hrs.csv} contiene datos de trading del par de divisas EUR/USD con una frecuencia de 4 horas. Solo se ha seleccionado la columna \texttt{close} con los primeros 6000 datos para este análisis.
+
+\section{Normalización de la Columna `close'}\label{normalizaciuxf3n-de-la-columna-close}
+
+\begin{table}
+\centering
+\caption{\label{tab:normalizar-close}Columna 'close' Normalizada}
+\centering
+\begin{tabular}[t]{r}
+\hline
+x\\
+\hline
+0.1566893\\
+\hline
+0.1515141\\
+\hline
+0.1510595\\
+\hline
+0.1531925\\
+\hline
+0.1720050\\
+\hline
+0.1752220\\
+\hline
+\end{tabular}
+\end{table}
+
+Se ha normalizado la columna \texttt{close} utilizando la técnica Min-Max, transformando los valores entre 0 y 1 para mejorar la estabilidad del modelo.
+
+\section{Descomposición Estacional}\label{descomposiciuxf3n-estacional}
+
+\includegraphics{bookdown_time_series_files/figure-latex/descomposicion-estacional-1.png}
+
+Descomponemos la serie temporal en componentes de tendencia, estacionalidad y ruido para analizar los patrones internos de la serie temporal antes de aplicar el modelo.
+
+\section{Suavizado Exponencial Simple}\label{suavizado-exponencial-simple}
+
+\includegraphics{bookdown_time_series_files/figure-latex/suavizado-simple-1.png}
+
+Aplicamos el suavizado exponencial simple a la serie \texttt{close} para visualizar una versión suavizada de la serie de tiempo. Se pude observar como la señal original contiene mas ruido que la suavizada.
+
+\section{Suavizado Exponencial Doble (Aditivo y Multiplicativo)}\label{suavizado-exponencial-doble-aditivo-y-multiplicativo}
+
+\includegraphics{bookdown_time_series_files/figure-latex/suavizado-doble-1.png}
+
+Se puede apreciar que tanto el suavizado aditivo como el multiplicativo producen una estimación cercana a los datos originales, aunque estas señales contienen mas ruido que el suavizado simple e incluso al parecer mas que la señal original.
+
+\section{Calculo de error}\label{calculo-de-error}
+
+Se calcularon los errores de los modelos multiplicativo y aditivo en el dataset de training. Se usa un ajuste de 0.001 para el modelo multiplicativo, porque este requiere que todos los datos sean positivos y mayores que cero (no admite ceros), y como los datos fueron nomalizados con min-max, obligatoriamente existe al menos un valor de cero.
+
+\begin{verbatim}
+## MAE en entrenamiento (Aditivo): 0.01972768
+\end{verbatim}
+
+\begin{verbatim}
+## MAE en entrenamiento (Multiplicativo): 0.05277391
+\end{verbatim}
+
+Finalmente se calcularon los errores de los modelos en el dataset de validación
+
+\begin{verbatim}
+## MAE en validación (Aditivo): 2.350168
+\end{verbatim}
+
+\begin{verbatim}
+## MAE en validación (Multiplicativo): 4.704901
+\end{verbatim}
+
+Este gigantesco error es debido a que el modelo trata de predecir todo el dataset de validación de una sola vez (1238 ticks). En otros modelos predictivos en series de tiempo como redes neuronales, se usa un sliding window usando los últimos 128 ticks como entrada del modelo, se predice el siguiente, y esto se repite para cada tick, luego se promedian todos los errores y esa es la medida de desempeño de la red neuronal.
+
+Para poder comparar el desempeño predictivo del modelo Holt-Winter con otros modelos predictivos en una serie de tiempo larga como la nuestra, probablemente se requiera usar sliding window como en las redes neuronales, se requeriría adaptar el modelo Holt-Winter para que se entrene con una ventana y prediga segmentos cortos que se concatenan y que formarían la señal pronosticada, con la cual se calcularían y promediarían los errores por tick, en lugar de tratar de predecir la serie de tiempo completa de una sola vez.
+
+\section{Conclusiones}\label{conclusiones}
+
+El método Holt-Winters aplicado a la columna \texttt{close} del conjunto de datos muestra que este modelo es capaz de capturar patrones de tendencia y estacionalidad en los datos de precios de cierre normalizados. Las métricas de evaluación como MAE muestran la precisión del modelo tanto en el conjunto de entrenamiento como en el conjunto de prueba, donde se puede apreciar que la predicción de todo el dataset de validación completo no es una buena forma de evaluar el desempeño de estos modelos, especialmente para comaprarlos con modelos ampliamente usados como las redes neuronales.
 
   \bibliography{book.bib,packages.bib}
 

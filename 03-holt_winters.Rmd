@@ -1,0 +1,172 @@
+# Análisis de Series de Tiempo con el Método Holt-Winters
+
+Este documento realiza un análisis de series de tiempo utilizando el método de Holt-Winters aplicado exclusivamente a la columna `close` del dataset `EURUSD_ForexTrading_4hrs.csv`. Se utilizarán solo 6000 datos, normalizando la columna `close`, dividiendo en conjunto de entrenamiento y prueba, y calculando la métricas de error MAE en el conjunto de entrenamiento y en el conjunto de prueba.
+
+## Carga de Bibliotecas y Datos
+
+```{r setup, include=FALSE}
+# Configuración inicial para el documento
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cargar-bibliotecas, include=FALSE}
+# Cargar las bibliotecas necesarias para el análisis
+library(ggplot2)         # Para visualizaciones
+library(knitr)           # Para generar tablas
+library(kableExtra)      # Para embellecer tablas
+library(dplyr)           # Para manipulación de datos
+library(forecast)        # Para modelos de predicción
+```
+
+```{r cargar-datos, echo=FALSE, dev = "png"}
+# Leer el dataset CSV
+data <- read.csv("./EURUSD_ForexTrading_4hrs.csv")
+
+# Seleccionar solo la columna 'close' y los primeros 6000 datos
+data <- data %>% select(close) %>% head(6000)
+
+# Verificar la carga de datos mostrando las primeras filas
+kable(head(data), caption = "Primeras filas del dataset EURUSD ForexTrading 4hrs Columna close") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+El dataset `EURUSD_ForexTrading_4hrs.csv` contiene datos de trading del par de divisas EUR/USD con una frecuencia de 4 horas. Solo se ha seleccionado la columna `close` con los primeros 6000 datos para este análisis.
+
+## Normalización de la Columna 'close'
+
+```{r normalizar-close, echo=FALSE, dev = "png"}
+# Definir la función de normalización Min-Max
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x)))
+}
+
+# Aplicar la normalización únicamente a la columna 'close'
+data$close <- normalize(data$close)
+
+# Verificar la normalización mostrando los primeros registros
+kable(head(data$close), caption = "Columna 'close' Normalizada") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+Se ha normalizado la columna `close` utilizando la técnica Min-Max, transformando los valores entre 0 y 1 para mejorar la estabilidad del modelo.
+
+## Descomposición Estacional
+
+```{r descomposicion-estacional, echo=FALSE, dev = "png"}
+# Convertir la columna 'close' en una serie temporal para descomposición con ciclo semanal
+data_ts <- ts(data$close, frequency = 720)  # 720 observaciones para un ciclo de4 meses
+
+# Realizar la descomposición estacional (puedes probar con tipo "additive" si el resultado sigue siendo confuso)
+decompose_result <- decompose(data_ts, type = "multiplicative")
+
+# Graficar la descomposición estacional
+plot(decompose_result)
+title(main = "Descomposición Estacional Semanal de la Serie Temporal")
+```
+
+Descomponemos la serie temporal en componentes de tendencia, estacionalidad y ruido para analizar los patrones internos de la serie temporal antes de aplicar el modelo.
+
+## Suavizado Exponencial Simple
+
+```{r suavizado-simple, echo=FALSE, dev = "png"}
+# Suavizado exponencial simple con un alpha básico
+alpha <- 1 / (2 * 6)  # Valor de alpha
+simple_smoothing <- HoltWinters(data_ts, alpha = alpha, beta = FALSE, gamma = FALSE)
+
+# Graficar solo los primeros 300 puntos de la serie original junto con el suavizado exponencial simple
+plot(data_ts, main = "Suavizado Exponencial Simple", ylab = "Precio Normalizado", col = "black", xlim = c(1, 3))
+lines(simple_smoothing$fitted[,1], col = "blue")
+legend("topright", legend = c("Original", "Suavizado Simple"), col = c("black", "blue"), lty = 1)
+```
+
+Aplicamos el suavizado exponencial simple a la serie `close` para visualizar una versión suavizada de la serie de tiempo. Se pude observar como la señal original contiene mas ruido que la suavizada.
+
+## Suavizado Exponencial Doble (Aditivo y Multiplicativo)
+
+```{r suavizado-doble, echo=FALSE, dev = "png"}
+# Definir el tamaño de los datos para el conjunto de entrenamiento y validación
+train_size <- 4000  # Tamaño del conjunto de entrenamiento
+validation_size <- 1238  # Tamaño del conjunto de validación
+
+# Convertir la columna 'close' en una serie temporal para el conjunto de entrenamiento
+train_ts <- ts(data$close[1:train_size], frequency = 42)
+
+# Ajustar el modelo aditivo con valores iniciales manuales
+model_add <- HoltWinters(train_ts, seasonal = "additive", alpha = 0.2, beta = 0.1, gamma = 0.1)
+
+# Crear una versión de la serie con un pequeño ajuste para evitar ceros (solo para el modelo multiplicativo)
+train_ts_adjusted <- train_ts + 0.001
+
+# Ajustar el modelo multiplicativo con valores iniciales manuales
+model_mul <- HoltWinters(train_ts_adjusted, seasonal = "multiplicative", alpha = 0.2, beta = 0.1, gamma = 0.1)
+
+# Graficar ambos suavizados para el conjunto de entrenamiento
+plot(train_ts, main = "Suavizado Exponencial Doble (Aditivo y Multiplicativo)", ylab = "Precio Normalizado", col = "black", xlim = c(4, 10))
+lines(model_add$fitted[,1], col = "red")
+lines(model_mul$fitted[,1] - 0.001, col = "green")  # Resta la constante para mantener la escala original
+legend("topright", legend = c("Original", "Aditivo", "Multiplicativo"), col = c("black", "red", "green"), lty = 1)
+
+
+
+```
+
+Se puede apreciar que tanto el suavizado aditivo como el multiplicativo producen una estimación cercana a los datos originales, aunque estas señales contienen mas ruido que el suavizado simple e incluso al parecer mas que la señal original.
+
+## Calculo de error
+
+Se calcularon los errores de los modelos multiplicativo y aditivo en el dataset de training. Se usa un ajuste de 0.001 para el modelo multiplicativo, porque este requiere que todos los datos sean positivos y mayores que cero (no admite ceros), y como los datos fueron nomalizados con min-max, obligatoriamente existe al menos un valor de cero.
+
+```{r echo=FALSE}
+
+# Cálculo de Errores en Entrenamiento y Validación
+
+# Calcular el error (MAE) en el conjunto de entrenamiento
+mae_train_add <- mean(abs(train_ts - model_add$fitted[,1]))
+mae_train_mul <- mean(abs(train_ts - (model_mul$fitted[,1] - 0.001)))
+
+# Imprimir los errores en entrenamiento
+cat("MAE en entrenamiento (Aditivo):", mae_train_add, "\n")
+cat("MAE en entrenamiento (Multiplicativo):", mae_train_mul, "\n")
+
+```
+
+Finalmente se calcularon los errores de los modelos en el dataset de validación
+
+```{r echo=FALSE}
+validation_size <- 1238  # Tamaño del conjunto de validación
+
+# Convertir la columna 'close' del conjunto de validación en una serie temporal corregida
+validation_ts <- ts(data$close[(train_size + 1):(train_size + validation_size)], frequency = 42)
+
+# Realizar predicciones para el conjunto de validación usando ambos modelos ajustados
+forecast_add <- forecast::forecast(model_add, h = validation_size)$mean
+forecast_mul <- forecast::forecast(model_mul, h = validation_size)$mean - 0.001  # Ajustar escala para el modelo multiplicativo
+
+# Convertir las predicciones a vectores numéricos para evitar problemas de índices
+forecast_add_vec <- as.numeric(forecast_add)
+forecast_mul_vec <- as.numeric(forecast_mul)
+
+# Calcular el MAE en el conjunto de validación
+if (length(validation_ts) == length(forecast_add_vec)) {
+    mae_validation_add <- mean(abs(validation_ts - forecast_add_vec))
+    cat("MAE en validación (Aditivo):", mae_validation_add, "\n")
+} else {
+    cat("Error: Las longitudes de validation_ts y forecast_add_vec no coinciden.\n")
+}
+
+if (length(validation_ts) == length(forecast_mul_vec)) {
+    mae_validation_mul <- mean(abs(validation_ts - forecast_mul_vec))
+    cat("MAE en validación (Multiplicativo):", mae_validation_mul, "\n")
+} else {
+    cat("Error: Las longitudes de validation_ts y forecast_mul_vec no coinciden.\n")
+}
+
+```
+
+Este gigantesco error es debido a que el modelo trata de predecir todo el dataset de validación de una sola vez (1238 ticks). En otros modelos predictivos en series de tiempo como redes neuronales, se usa un sliding window usando los últimos 128 ticks como entrada del modelo, se predice el siguiente, y esto se repite para cada tick, luego se promedian todos los errores y esa es la medida de desempeño de la red neuronal.
+
+Para poder comparar el desempeño predictivo del modelo Holt-Winter con otros modelos predictivos en una serie de tiempo larga como la nuestra, probablemente se requiera usar sliding window como en las redes neuronales, se requeriría adaptar el modelo Holt-Winter para que se entrene con una ventana y prediga segmentos cortos que se concatenan y que formarían la señal pronosticada, con la cual se calcularían y promediarían los errores por tick, en lugar de tratar de predecir la serie de tiempo completa de una sola vez.
+
+## Conclusiones
+
+El método Holt-Winters aplicado a la columna `close` del conjunto de datos muestra que este modelo es capaz de capturar patrones de tendencia y estacionalidad en los datos de precios de cierre normalizados. Las métricas de evaluación como MAE muestran la precisión del modelo tanto en el conjunto de entrenamiento como en el conjunto de prueba, donde se puede apreciar que la predicción de todo el dataset de validación completo no es una buena forma de evaluar el desempeño de estos modelos, especialmente para comaprarlos con modelos ampliamente usados como las redes neuronales.
