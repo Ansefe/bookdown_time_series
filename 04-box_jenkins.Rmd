@@ -1,0 +1,253 @@
+# Modelos Estacionarios
+
+En esta sección, analizamos y predecimos series temporales usando la metodología **Box-Jenkins**. El objetivo es ajustar modelos autoregresivos integrados de media móvil (ARIMA) para encontrar patrones subyacentes en los datos y realizar predicciones futuras.
+
+El dataset analizado contiene precios Forex EUR/USD en intervalos de 4 horas, el cual será procesado y transformado para cumplir con los requisitos de estacionariedad y ajuste de modelos ARIMA.
+
+## Objetivo
+
+Esquematizar los modelos convencionales de series temporales mediante la metodología **Box-Jenkins** y explorar su aplicabilidad en la predicción de futuras observaciones.
+
+## 1. Carga y Exploración de los Datos
+
+En esta sección se carga el dataset `EURUSD_ForexTrading_4hrs.csv`, y se realiza una exploración inicial para entender su estructura y características básicas.
+
+```{r load-data, echo=FALSE, message=FALSE, warning=FALSE}
+# Librerías necesarias
+library(ggplot2)       # Visualización de datos
+library(forecast)      # Modelos ARIMA y predicción
+library(tseries)       # Pruebas de estacionariedad
+library(dplyr)         # Manipulación de datos
+
+# Cargar el dataset CSV
+data <- read.csv("./EURUSD_ForexTrading_4hrs.csv")
+
+# Mostrar las primeras filas
+head(data)
+
+# Resumen estadístico de las columnas
+summary(data)
+```
+
+------------------------------------------------------------------------
+
+## 2. Limpieza y Preprocesamiento de los Datos
+
+Se seleccionan las columnas relevantes (en este caso, `Close`) y se convierten en una serie temporal.
+
+```{r clean-data, echo=FALSE}
+# Seleccionar la columna de precios de cierre (Close)
+data_clean <- data %>% select(close)
+
+# Convertir a una serie temporal (frecuencia: 6 intervalos por día)
+ts_data <- ts(data_clean$close, frequency = 6, start = c(2023, 1))  # Ejemplo con datos recientes
+
+# Graficar la serie temporal
+plot(ts_data, main = "Serie Temporal Original", ylab = "Precio de Cierre", xlab = "Tiempo")
+```
+
+El gráfico representa la serie temporal original del precio de cierre del par Forex EUR/USD, registrado en intervalos de 4 horas. Observamos fluctuaciones significativas que reflejan los cambios en el mercado durante el período analizado. La serie muestra patrones evidentes de tendencias ascendentes y descendentes, lo que sugiere posibles componentes de largo plazo y estacionalidad que deben ser tratados en etapas posteriores del análisis, como la transformación a estacionariedad y la descomposición de los datos.
+
+------------------------------------------------------------------------
+
+## 3. División del Dataset en Conjuntos de Entrenamiento y Validación
+
+Se divide el dataset en 70% para entrenamiento y 30% para evaluación del modelo.
+
+```{r split-data, echo=FALSE}
+# División del dataset
+train_length <- floor(0.7 * length(ts_data))
+train_data <- ts_data[1:train_length]
+test_data <- ts_data[(train_length + 1):length(ts_data)]
+
+```
+
+## 4. Normalización de los Datos
+
+La normalización es útil para estabilizar la varianza y hacer que los datos sean más adecuados para el análisis.
+
+```{r normalize-data, echo=FALSE}
+# Normalización Min-Max en el dataset de entrenamiento
+min_train <- min(train_data, na.rm = TRUE)  # Valor mínimo del dataset de entrenamiento
+max_train <- max(train_data, na.rm = TRUE)  # Valor máximo del dataset de entrenamiento
+
+# Normalizar el dataset de entrenamiento
+norm_train_data <- (train_data - min_train) / (max_train - min_train)
+
+# Aplicar la normalización Min-Max al dataset de prueba con los valores del entrenamiento
+norm_test_data <- (test_data - min_train) / (max_train - min_train)
+
+# Graficar la serie normalizada del dataset de entrenamiento
+plot(norm_train_data, main = "Serie Normalizada (Min-Max)", ylab = "Valor Normalizado", xlab = "Tiempo")
+
+```
+
+Como se observa, el rango de los datos ahora se encuentra entre 0 y 1.
+
+------------------------------------------------------------------------
+
+## 5. Verificación de Estacionariedad
+
+La serie debe ser estacionaria para que los modelos ARIMA sean válidos. Evaluamos esto usando la prueba Dickey-Fuller Aumentada (ADF).
+
+```{r check-stationarity, echo=FALSE}
+# Prueba de Dickey-Fuller Aumentada
+adf_test <- adf.test(norm_train_data)
+
+# Mostrar los resultados
+adf_test
+```
+
+El resultado de la prueba Dickey-Fuller Aumentada (ADF) muestra un estadístico Dickey-Fuller de -2.0393 con un p-valor de 0.5618, lo que indica que no podemos rechazar la hipótesis nula de que la serie tiene una raíz unitaria. Esto significa que la serie norm_train_data no es estacionaria. Dado que la estacionariedad es un requisito fundamental para ajustar modelos ARIMA, será necesario transformar la serie, aplicando una diferenciación para estabilizar su media y eliminar tendencias.
+
+------------------------------------------------------------------------
+
+## 6. Transformación a Estacionariedad
+
+Si la serie no es estacionaria, aplicamos una diferenciación para eliminar tendencias no deseadas.
+
+```{r differencing-2, echo=FALSE}
+# Aplicar diferenciación
+diff_norm_train_data <- diff(norm_train_data)
+
+# Graficar la serie diferenciada
+plot(diff_norm_train_data, main = "Serie Diferenciada", ylab = "Diferencia (Precio de Cierre)", xlab = "Tiempo")
+```
+
+El gráfico muestra la serie diferenciada con valores oscilando alrededor de 0, entre aproximadamente -0.02 y 0.02. Esto indica que la diferenciación logró estabilizar la media y eliminar tendencias, dejando la serie preparada para verificar su estacionariedad y ajustar un modelo ARIMA.
+
+------------------------------------------------------------------------
+
+## 7. Análisis ACF y PACF
+
+Los gráficos de ACF y PACF ayudan a determinar los valores $p$ y $q$ del modelo ARIMA.
+
+```{r identify-parameters, echo=FALSE}
+# Graficar ACF y PACF
+acf(diff_norm_train_data, main = "ACF de la Serie Diferenciada")
+```
+
+El gráfico de la ACF (Función de Autocorrelación) muestra un primer retardo significativo, con un valor cercano a 1.0, mientras que los retardos restantes están dentro de los intervalos de confianza (±0.05), indicando que no hay correlación significativa más allá del primer lag.
+
+```{r identify-parameters-2, echo=FALSE}
+# Graficar ACF y PACF
+pacf(diff_norm_train_data, main = "PACF de la Serie Diferenciada")
+```
+
+En el gráfico de la PACF (Función de Autocorrelación Parcial), los primeros retardos presentan valores significativos positivos y negativos, especialmente en los primeros lags, como el 1, 3 y 5. Esto sugiere la posible inclusión de términos autorregresivos (AR) en el modelo ARIMA.
+
+Estos resultados guían la selección de los parámetros para ajustar un modelo ARIMA adecuado.
+
+------------------------------------------------------------------------
+
+## 8. Ajuste del Modelo ARIMA
+
+Ajustamos un modelo ARIMA utilizando los valores $p$, $d$ y $q$ obtenidos previamente. Usamos `auto.arima` para seleccionar automáticamente los mejores parámetros.
+
+```{r fit-arima, echo=FALSE}
+# Ajuste automático del modelo ARIMA
+model <- auto.arima(norm_train_data, stepwise = FALSE, approximation = FALSE)
+
+# Resumen del modelo
+summary(model)
+```
+
+El modelo ajustado sobre la serie normalizada (**norm_train_data**) es un **ARIMA(4,1,0)** con los siguientes coeficientes: - **AR1**: 0.0095 (s.e.: 0.0070), - **AR2**: 0.0075 (s.e.: 0.0070), - **AR3**: -0.0163 (s.e.: 0.0070), - **AR4**: 0.0121 (s.e.: 0.0070).
+
+Indicadores del modelo: - **Log-Likelihood**: 74553.92, - **AIC**: -149097.8, - **BIC**: -149058.3.
+
+Métricas del conjunto de entrenamiento: - **RMSE**: 0.0060, - **MAE**: 0.0041, - **ACF1**: -0.000026.
+
+Estos resultados indican un ajuste razonable del modelo a los datos normalizados, con residuos independientes y métricas de error bajas en el conjunto de entrenamiento. Sin embargo, la presencia de valores extremos en las métricas como MAPE y MPE ($-\infty, \infty$) sugiere posibles problemas en los cálculos debido a la normalización o a valores cercanos a cero.
+
+------------------------------------------------------------------------
+
+## 9. Validación del Modelo
+
+Se validan los supuestos del modelo mediante el análisis de los residuos.
+
+```{r validate-model-1, echo=FALSE}
+# Graficar residuos
+checkresiduals(model)
+
+```
+
+El análisis de los residuos del modelo **ARIMA(4,1,0)** muestra lo siguiente:
+
+1.  **Gráfico de Residuos**: Los residuos oscilan alrededor de 0, con valores en el rango de aproximadamente -0.02 a 0.02, sin patrones visibles ni tendencias evidentes, lo que sugiere independencia de los residuos.
+
+2.  **ACF de Residuos**: Los valores de autocorrelación de los residuos están mayoritariamente dentro de los intervalos de confianza (±0.02), excepto por algunos picos en retardos altos, indicando que los residuos son casi ruido blanco.
+
+3.  **Distribución de Residuos**: El histograma muestra una distribución aproximadamente normal centrada en 0, corroborada por la curva de densidad ajustada, lo que valida la suposición de normalidad en los residuos.
+
+Estos resultados indican que el modelo ajustado cumple los supuestos de independencia y normalidad de los residuos, validando su uso para predicción.
+
+```{r validate-model, echo=FALSE}
+
+# Prueba de Ljung-Box para ruido blanco
+Box.test(model$residuals, lag = 10, type = "Ljung-Box")
+```
+
+El resultado de la prueba **Box-Ljung** para los residuos del modelo muestra un estadístico $X^2 = 0.91976$ con $df = 10$ grados de libertad y un $p\text{-valor} = 0.9999$. Dado que el $p\text{-valor} \gg 0.05$, no se puede rechazar la hipótesis nula de que los residuos son ruido blanco, confirmando la independencia de los residuos y validando el ajuste del modelo.
+
+Dado que el $p\text{-valor} > 0.05$, no se puede rechazar la hipótesis nula de que los residuos son ruido blanco. Esto confirma que los residuos del modelo no presentan autocorrelación significativa, validando así el ajuste del modelo ARIMA.
+
+------------------------------------------------------------------------
+
+## 10. Predicción
+
+Realizamos predicciones para los próximos intervalos usando el modelo ajustado.
+
+```{r forecast, echo=FALSE}
+# Predicción de 12 intervalos futuros
+forecast_values <- forecast::forecast(model, h = 12)
+
+# Graficar predicciones
+plot(forecast_values, main = "Predicción de la Serie Temporal", xlab = "Tiempo", ylab ="close")
+```
+
+El gráfico muestra la serie temporal original superpuesta con la predicción generada por el modelo **ARIMA(4,1,0)**. Aunque las predicciones siguen la tendencia general de la serie, el resultado es muy similar al original debido a que el modelo representa una diferenciación de primer orden, capturando únicamente cambios incrementales sin agregar términos de media móvil ($q$) y usando 4 para el autorregresivo.
+
+------------------------------------------------------------------------
+
+## 11. Evaluación de Predicciones
+
+Se evalúan las predicciones contra los datos de prueba usando métricas de error.
+
+```{r evaluate-predictions, echo=FALSE}
+# 11. Evaluación de Predicciones
+
+# Predicción para el conjunto de entrenamiento (datos conocidos)
+train_forecast <- fitted(model)  # Valores ajustados por el modelo en el conjunto de entrenamiento
+mae_train <- mean(abs(norm_train_data - train_forecast))  # Calcular MAE para entrenamiento
+
+# Predicción para el conjunto de prueba (datos no conocidos)
+test_forecast <- forecast::forecast(model, h = length(test_data))  # Generar predicciones para el conjunto de prueba
+mae_test <- mean(abs(norm_test_data - test_forecast$mean))  # Calcular MAE para prueba
+
+# Mostrar los resultados
+cat("MAE en el conjunto de entrenamiento:", mae_train, "\n")
+cat("MAE en el conjunto de prueba:", mae_test, "\n")
+
+```
+
+El error absoluto medio (MAE) del modelo en el conjunto de entrenamiento es **0.00406**, mientras que en el conjunto de prueba es significativamente mayor, con un valor de **0.0772**. Esto sugiere que el modelo se ajusta bien a los datos de entrenamiento, pero tiene dificultades para generalizar a datos no vistos, indicando un posible sobreajuste o la necesidad de mejorar la capacidad predictiva del modelo.
+
+------------------------------------------------------------------------
+
+## 12. Conclusiones
+
+Las siguientes son las conlusiones de las actividares realizadas:
+
+-   **Ajuste del Modelo ARIMA**:
+    -   Un modelo **ARIMA(4,1,0)**, incorporó términos autorregresivos ($p = 4$) y mostró mejoras sutiles respecto al ARIMA(0,1,0) probado inicialmente en los indicadores como **log-likelihood = 74553.92** y **AIC = -149097.8**, con residuos que cumplen las suposiciones de ruido blanco y normalidad.
+-   **Validación del Modelo**:
+    -   La prueba **Box-Ljung** confirmó que los residuos del modelo **ARIMA(4,1,0)** son independientes y no presentan autocorrelación significativa ($p\text{-valor} = 0.9999$).
+    -   Los residuos mostraron una distribución aproximadamente normal, validando aún más la calidad del modelo ajustado.
+-   **Evaluación de Predicciones**:
+    -   El **MAE en el conjunto de entrenamiento** fue de **0.00406**, mientras que en el conjunto de prueba aumentó significativamente a **0.07728354**, lo que indica que el modelo tiene dificultades para generalizar a datos no vistos, posiblemente debido a sobreajuste o características complejas no capturadas.
+-   **Limitaciones y Mejoras**:
+    -   Aunque el modelo **ARIMA(4,1,0)** ofrece un mejor ajuste que el **ARIMA(0,1,0)**, no logra reducir el error en el conjunto de prueba de forma significativa.
+    -   Sería recomendable explorar modelos más avanzados, como **SARIMA**, para capturar componentes estacionales, o incluir variables exógenas para mejorar las predicciones.
+
+El uso de la metodología **Box-Jenkins** permitió identificar patrones y ajustar modelos que explican las características principales de la serie temporal. Sin embargo, la discrepancia entre el desempeño en los conjuntos de entrenamiento y prueba resalta la necesidad de modelos más robustos para mejorar la capacidad predictiva.

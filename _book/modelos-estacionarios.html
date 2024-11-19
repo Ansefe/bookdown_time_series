@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 5 Modelos Estacionarios | EUR/USD</title>
+<meta name="author" content="Harvey Bastidas, Andrés Caicedo, Alexander Alvarado">
+<meta name="description" content="En esta sección, analizamos y predecimos series temporales usando la metodología Box-Jenkins. El objetivo es ajustar modelos autoregresivos integrados de media móvil (ARIMA) para encontrar...">
+<meta name="generator" content="bookdown 0.41 with bs4_book()">
+<meta property="og:title" content="Chapter 5 Modelos Estacionarios | EUR/USD">
+<meta property="og:type" content="book">
+<meta property="og:description" content="En esta sección, analizamos y predecimos series temporales usando la metodología Box-Jenkins. El objetivo es ajustar modelos autoregresivos integrados de media móvil (ARIMA) para encontrar...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 5 Modelos Estacionarios | EUR/USD">
+<meta name="twitter:description" content="En esta sección, analizamos y predecimos series temporales usando la metodología Box-Jenkins. El objetivo es ajustar modelos autoregresivos integrados de media móvil (ARIMA) para encontrar...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.8.0/transition.js"></script><script src="libs/bs3compat-0.8.0/tabs.js"></script><script src="libs/bs3compat-0.8.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet">
+<script src="libs/bsTable-3.3.7/bootstrapTable.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">EUR/USD</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Justificación de elección del Dataset</a></li>
+<li><a class="" href="intro.html"><span class="header-section-number">2</span> Estructura de los datos</a></li>
+<li><a class="" href="preprocesamiento-y-visualizaci%C3%B3n.html"><span class="header-section-number">3</span> Preprocesamiento y Visualización</a></li>
+<li><a class="" href="an%C3%A1lisis-de-series-de-tiempo-con-el-m%C3%A9todo-holt-winters.html"><span class="header-section-number">4</span> Análisis de Series de Tiempo con el Método Holt-Winters</a></li>
+<li><a class="active" href="modelos-estacionarios.html"><span class="header-section-number">5</span> Modelos Estacionarios</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="modelos-estacionarios" class="section level1" number="5">
+<h1>
+<span class="header-section-number">5</span> Modelos Estacionarios<a class="anchor" aria-label="anchor" href="#modelos-estacionarios"><i class="fas fa-link"></i></a>
+</h1>
+<p>En esta sección, analizamos y predecimos series temporales usando la metodología <strong>Box-Jenkins</strong>. El objetivo es ajustar modelos autoregresivos integrados de media móvil (ARIMA) para encontrar patrones subyacentes en los datos y realizar predicciones futuras.</p>
+<p>El dataset analizado contiene precios Forex EUR/USD en intervalos de 4 horas, el cual será procesado y transformado para cumplir con los requisitos de estacionariedad y ajuste de modelos ARIMA.</p>
+<div id="objetivo" class="section level2" number="5.1">
+<h2>
+<span class="header-section-number">5.1</span> Objetivo<a class="anchor" aria-label="anchor" href="#objetivo"><i class="fas fa-link"></i></a>
+</h2>
+<p>Esquematizar los modelos convencionales de series temporales mediante la metodología <strong>Box-Jenkins</strong> y explorar su aplicabilidad en la predicción de futuras observaciones.</p>
+</div>
+<div id="carga-y-exploración-de-los-datos" class="section level2" number="5.2">
+<h2>
+<span class="header-section-number">5.2</span> 1. Carga y Exploración de los Datos<a class="anchor" aria-label="anchor" href="#carga-y-exploraci%C3%B3n-de-los-datos"><i class="fas fa-link"></i></a>
+</h2>
+<p>En esta sección se carga el dataset <code>EURUSD_ForexTrading_4hrs.csv</code>, y se realiza una exploración inicial para entender su estructura y características básicas.</p>
+<pre><code>##                  Gmt.time    open    high     low   close   volume
+## 1 04.05.2003 21:00:00.000 1.12354 1.12354 1.12166 1.12274  95533.1
+## 2 05.05.2003 01:00:00.000 1.12242 1.12276 1.12067 1.12126  93778.6
+## 3 05.05.2003 05:00:00.000 1.12139 1.12255 1.12030 1.12113  90924.7
+## 4 05.05.2003 09:00:00.000 1.12092 1.12331 1.12049 1.12174  91254.7
+## 5 05.05.2003 13:00:00.000 1.12194 1.12900 1.12130 1.12712 308003.4
+## 6 05.05.2003 17:00:00.000 1.12718 1.13019 1.12657 1.12804 373668.3</code></pre>
+<pre><code>##    Gmt.time              open            high            low       
+##  Length:28860       Min.   :1.037   Min.   :1.039   Min.   :1.034  
+##  Class :character   1st Qu.:1.154   1st Qu.:1.156   1st Qu.:1.152  
+##  Mode  :character   Median :1.242   Median :1.244   Median :1.240  
+##                     Mean   :1.254   Mean   :1.256   Mean   :1.252  
+##                     3rd Qu.:1.339   3rd Qu.:1.341   3rd Qu.:1.337  
+##                     Max.   :1.599   Max.   :1.604   Max.   :1.597  
+##      close           volume      
+##  Min.   :1.037   Min.   :     0  
+##  1st Qu.:1.154   1st Qu.: 20322  
+##  Median :1.242   Median : 47813  
+##  Mean   :1.254   Mean   : 83079  
+##  3rd Qu.:1.339   3rd Qu.:102455  
+##  Max.   :1.599   Max.   :752269</code></pre>
+<hr>
+</div>
+<div id="limpieza-y-preprocesamiento-de-los-datos" class="section level2" number="5.3">
+<h2>
+<span class="header-section-number">5.3</span> 2. Limpieza y Preprocesamiento de los Datos<a class="anchor" aria-label="anchor" href="#limpieza-y-preprocesamiento-de-los-datos"><i class="fas fa-link"></i></a>
+</h2>
+<p>Se seleccionan las columnas relevantes (en este caso, <code>Close</code>) y se convierten en una serie temporal.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/clean-data-1.png" width="672"></div>
+<p>El gráfico representa la serie temporal original del precio de cierre del par Forex EUR/USD, registrado en intervalos de 4 horas. Observamos fluctuaciones significativas que reflejan los cambios en el mercado durante el período analizado. La serie muestra patrones evidentes de tendencias ascendentes y descendentes, lo que sugiere posibles componentes de largo plazo y estacionalidad que deben ser tratados en etapas posteriores del análisis, como la transformación a estacionariedad y la descomposición de los datos.</p>
+<hr>
+</div>
+<div id="división-del-dataset-en-conjuntos-de-entrenamiento-y-validación" class="section level2" number="5.4">
+<h2>
+<span class="header-section-number">5.4</span> 3. División del Dataset en Conjuntos de Entrenamiento y Validación<a class="anchor" aria-label="anchor" href="#divisi%C3%B3n-del-dataset-en-conjuntos-de-entrenamiento-y-validaci%C3%B3n"><i class="fas fa-link"></i></a>
+</h2>
+<p>Se divide el dataset en 70% para entrenamiento y 30% para evaluación del modelo.</p>
+</div>
+<div id="normalización-de-los-datos" class="section level2" number="5.5">
+<h2>
+<span class="header-section-number">5.5</span> 4. Normalización de los Datos<a class="anchor" aria-label="anchor" href="#normalizaci%C3%B3n-de-los-datos"><i class="fas fa-link"></i></a>
+</h2>
+<p>La normalización es útil para estabilizar la varianza y hacer que los datos sean más adecuados para el análisis.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/normalize-data-1.png" width="672"></div>
+<p>Como se observa, el rango de los datos ahora se encuentra entre 0 y 1.</p>
+<hr>
+</div>
+<div id="verificación-de-estacionariedad" class="section level2" number="5.6">
+<h2>
+<span class="header-section-number">5.6</span> 5. Verificación de Estacionariedad<a class="anchor" aria-label="anchor" href="#verificaci%C3%B3n-de-estacionariedad"><i class="fas fa-link"></i></a>
+</h2>
+<p>La serie debe ser estacionaria para que los modelos ARIMA sean válidos. Evaluamos esto usando la prueba Dickey-Fuller Aumentada (ADF).</p>
+<pre><code>## Augmented Dickey-Fuller Test 
+## alternative: stationary 
+##  
+## Type 1: no drift no trend 
+##       lag    ADF p.value
+##  [1,]   0 -0.861   0.372
+##  [2,]   1 -0.868   0.369
+##  [3,]   2 -0.874   0.367
+##  [4,]   3 -0.861   0.372
+##  [5,]   4 -0.874   0.367
+##  [6,]   5 -0.876   0.366
+##  [7,]   6 -0.878   0.365
+##  [8,]   7 -0.874   0.367
+##  [9,]   8 -0.875   0.367
+## [10,]   9 -0.873   0.367
+## [11,]  10 -0.877   0.366
+## [12,]  11 -0.886   0.363
+## [13,]  12 -0.885   0.363
+## [14,]  13 -0.876   0.366
+## Type 2: with drift no trend 
+##       lag   ADF p.value
+##  [1,]   0 -2.12   0.278
+##  [2,]   1 -2.15   0.268
+##  [3,]   2 -2.17   0.261
+##  [4,]   3 -2.13   0.276
+##  [5,]   4 -2.14   0.273
+##  [6,]   5 -2.14   0.272
+##  [7,]   6 -2.14   0.272
+##  [8,]   7 -2.13   0.275
+##  [9,]   8 -2.11   0.285
+## [10,]   9 -2.10   0.287
+## [11,]  10 -2.11   0.285
+## [12,]  11 -2.09   0.292
+## [13,]  12 -2.09   0.291
+## [14,]  13 -2.08   0.298
+## Type 3: with drift and trend 
+##       lag   ADF p.value
+##  [1,]   0 -2.16   0.507
+##  [2,]   1 -2.19   0.496
+##  [3,]   2 -2.21   0.489
+##  [4,]   3 -2.17   0.505
+##  [5,]   4 -2.18   0.501
+##  [6,]   5 -2.18   0.501
+##  [7,]   6 -2.18   0.501
+##  [8,]   7 -2.17   0.504
+##  [9,]   8 -2.15   0.514
+## [10,]   9 -2.14   0.517
+## [11,]  10 -2.15   0.514
+## [12,]  11 -2.13   0.523
+## [13,]  12 -2.13   0.521
+## [14,]  13 -2.11   0.528
+## ---- 
+## Note: in fact, p.value = 0.01 means p.value &lt;= 0.01</code></pre>
+<pre><code>## $type1
+##       lag        ADF   p.value
+##  [1,]   0 -0.8607895 0.3716268
+##  [2,]   1 -0.8679287 0.3690726
+##  [3,]   2 -0.8742777 0.3668010
+##  [4,]   3 -0.8606220 0.3716867
+##  [5,]   4 -0.8741001 0.3668646
+##  [6,]   5 -0.8764373 0.3660284
+##  [7,]   6 -0.8781312 0.3654224
+##  [8,]   7 -0.8743629 0.3667706
+##  [9,]   8 -0.8746145 0.3666806
+## [10,]   9 -0.8733773 0.3671232
+## [11,]  10 -0.8765659 0.3659824
+## [12,]  11 -0.8856760 0.3627230
+## [13,]  12 -0.8848509 0.3630182
+## [14,]  13 -0.8762256 0.3661041
+## 
+## $type2
+##       lag       ADF   p.value
+##  [1,]   0 -2.124490 0.2782040
+##  [2,]   1 -2.149853 0.2680589
+##  [3,]   2 -2.166670 0.2613321
+##  [4,]   3 -2.129695 0.2761221
+##  [5,]   4 -2.138047 0.2727812
+##  [6,]   5 -2.140018 0.2719927
+##  [7,]   6 -2.139519 0.2721925
+##  [8,]   7 -2.132869 0.2748525
+##  [9,]   8 -2.108596 0.2845615
+## [10,]   9 -2.102436 0.2870256
+## [11,]  10 -2.108329 0.2846684
+## [12,]  11 -2.089681 0.2921277
+## [13,]  12 -2.093017 0.2907933
+## [14,]  13 -2.075880 0.2976481
+## 
+## $type3
+##       lag       ADF   p.value
+##  [1,]   0 -2.164022 0.5068136
+##  [2,]   1 -2.189210 0.4961222
+##  [3,]   2 -2.205776 0.4891471
+##  [4,]   3 -2.169354 0.5045398
+##  [5,]   4 -2.176674 0.5014184
+##  [6,]   5 -2.178475 0.5006505
+##  [7,]   6 -2.177817 0.5009308
+##  [8,]   7 -2.171376 0.5036774
+##  [9,]   8 -2.146670 0.5142130
+## [10,]   9 -2.140507 0.5168410
+## [11,]  10 -2.146217 0.5144060
+## [12,]  11 -2.126486 0.5228201
+## [13,]  12 -2.129930 0.5213512
+## [14,]  13 -2.113231 0.5284725</code></pre>
+<p>El resultado de la prueba Dickey-Fuller Aumentada (ADF) muestra un estadístico Dickey-Fuller de -2.0393 con un p-valor de 0.5618, lo que indica que no podemos rechazar la hipótesis nula de que la serie tiene una raíz unitaria. Esto significa que la serie norm_train_data no es estacionaria. Dado que la estacionariedad es un requisito fundamental para ajustar modelos ARIMA, será necesario transformar la serie, aplicando una diferenciación para estabilizar su media y eliminar tendencias.</p>
+<hr>
+</div>
+<div id="transformación-a-estacionariedad" class="section level2" number="5.7">
+<h2>
+<span class="header-section-number">5.7</span> 6. Transformación a Estacionariedad<a class="anchor" aria-label="anchor" href="#transformaci%C3%B3n-a-estacionariedad"><i class="fas fa-link"></i></a>
+</h2>
+<p>Si la serie no es estacionaria, aplicamos una diferenciación para eliminar tendencias no deseadas.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/differencing-2-1.png" width="672"></div>
+<p>El gráfico muestra la serie diferenciada con valores oscilando alrededor de 0, entre aproximadamente -0.02 y 0.02. Esto indica que la diferenciación logró estabilizar la media y eliminar tendencias, dejando la serie preparada para verificar su estacionariedad y ajustar un modelo ARIMA.</p>
+<hr>
+</div>
+<div id="análisis-acf-y-pacf" class="section level2" number="5.8">
+<h2>
+<span class="header-section-number">5.8</span> 7. Análisis ACF y PACF<a class="anchor" aria-label="anchor" href="#an%C3%A1lisis-acf-y-pacf"><i class="fas fa-link"></i></a>
+</h2>
+<p>Los gráficos de ACF y PACF ayudan a determinar los valores <span class="math inline">\(p\)</span> y <span class="math inline">\(q\)</span> del modelo ARIMA.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/identify-parameters-1.png" width="672"></div>
+<p>El gráfico de la ACF (Función de Autocorrelación) muestra un primer retardo significativo, con un valor cercano a 1.0, mientras que los retardos restantes están dentro de los intervalos de confianza (±0.05), indicando que no hay correlación significativa más allá del primer lag.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/identify-parameters-2-1.png" width="672"></div>
+<p>En el gráfico de la PACF (Función de Autocorrelación Parcial), los primeros retardos presentan valores significativos positivos y negativos, especialmente en los primeros lags, como el 1, 3 y 5. Esto sugiere la posible inclusión de términos autorregresivos (AR) en el modelo ARIMA.</p>
+<p>Estos resultados guían la selección de los parámetros para ajustar un modelo ARIMA adecuado.</p>
+<hr>
+</div>
+<div id="ajuste-del-modelo-arima" class="section level2" number="5.9">
+<h2>
+<span class="header-section-number">5.9</span> 8. Ajuste del Modelo ARIMA<a class="anchor" aria-label="anchor" href="#ajuste-del-modelo-arima"><i class="fas fa-link"></i></a>
+</h2>
+<p>Ajustamos un modelo ARIMA utilizando los valores <span class="math inline">\(p\)</span>, <span class="math inline">\(d\)</span> y <span class="math inline">\(q\)</span> obtenidos previamente. Usamos <code>auto.arima</code> para seleccionar automáticamente los mejores parámetros.</p>
+<pre><code>## Series: norm_train_data 
+## ARIMA(4,1,0) 
+## 
+## Coefficients:
+##          ar1     ar2      ar3     ar4
+##       0.0095  0.0075  -0.0163  0.0121
+## s.e.  0.0070  0.0070   0.0070  0.0070
+## 
+## sigma^2 = 3.647e-05:  log likelihood = 74553.92
+## AIC=-149097.8   AICc=-149097.8   BIC=-149058.3
+## 
+## Training set error measures:
+##                         ME        RMSE         MAE  MPE MAPE     MASE
+## Training set -2.667179e-07 0.006038687 0.004067731 -Inf  Inf 1.000317
+##                       ACF1
+## Training set -2.599614e-05</code></pre>
+<p>El modelo ajustado sobre la serie normalizada (<strong>norm_train_data</strong>) es un <strong>ARIMA(4,1,0)</strong> con los siguientes coeficientes: - <strong>AR1</strong>: 0.0095 (s.e.: 0.0070), - <strong>AR2</strong>: 0.0075 (s.e.: 0.0070), - <strong>AR3</strong>: -0.0163 (s.e.: 0.0070), - <strong>AR4</strong>: 0.0121 (s.e.: 0.0070).</p>
+<p>Indicadores del modelo: - <strong>Log-Likelihood</strong>: 74553.92, - <strong>AIC</strong>: -149097.8, - <strong>BIC</strong>: -149058.3.</p>
+<p>Métricas del conjunto de entrenamiento: - <strong>RMSE</strong>: 0.0060, - <strong>MAE</strong>: 0.0041, - <strong>ACF1</strong>: -0.000026.</p>
+<p>Estos resultados indican un ajuste razonable del modelo a los datos normalizados, con residuos independientes y métricas de error bajas en el conjunto de entrenamiento. Sin embargo, la presencia de valores extremos en las métricas como MAPE y MPE (<span class="math inline">\(-\infty, \infty\)</span>) sugiere posibles problemas en los cálculos debido a la normalización o a valores cercanos a cero.</p>
+<hr>
+</div>
+<div id="validación-del-modelo" class="section level2" number="5.10">
+<h2>
+<span class="header-section-number">5.10</span> 9. Validación del Modelo<a class="anchor" aria-label="anchor" href="#validaci%C3%B3n-del-modelo"><i class="fas fa-link"></i></a>
+</h2>
+<p>Se validan los supuestos del modelo mediante el análisis de los residuos.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/validate-model-1-1.png" width="672"></div>
+<pre><code>## 
+##  Ljung-Box test
+## 
+## data:  Residuals from ARIMA(4,1,0)
+## Q* = 0.91976, df = 6, p-value = 0.9885
+## 
+## Model df: 4.   Total lags used: 10</code></pre>
+<p>El análisis de los residuos del modelo <strong>ARIMA(4,1,0)</strong> muestra lo siguiente:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Gráfico de Residuos</strong>: Los residuos oscilan alrededor de 0, con valores en el rango de aproximadamente -0.02 a 0.02, sin patrones visibles ni tendencias evidentes, lo que sugiere independencia de los residuos.</p></li>
+<li><p><strong>ACF de Residuos</strong>: Los valores de autocorrelación de los residuos están mayoritariamente dentro de los intervalos de confianza (±0.02), excepto por algunos picos en retardos altos, indicando que los residuos son casi ruido blanco.</p></li>
+<li><p><strong>Distribución de Residuos</strong>: El histograma muestra una distribución aproximadamente normal centrada en 0, corroborada por la curva de densidad ajustada, lo que valida la suposición de normalidad en los residuos.</p></li>
+</ol>
+<p>Estos resultados indican que el modelo ajustado cumple los supuestos de independencia y normalidad de los residuos, validando su uso para predicción.</p>
+<pre><code>## 
+##  Box-Ljung test
+## 
+## data:  model$residuals
+## X-squared = 0.91976, df = 10, p-value = 0.9999</code></pre>
+<p>El resultado de la prueba <strong>Box-Ljung</strong> para los residuos del modelo muestra un estadístico <span class="math inline">\(X^2 = 0.91976\)</span> con <span class="math inline">\(df = 10\)</span> grados de libertad y un <span class="math inline">\(p\text{-valor} = 0.9999\)</span>. Dado que el <span class="math inline">\(p\text{-valor} \gg 0.05\)</span>, no se puede rechazar la hipótesis nula de que los residuos son ruido blanco, confirmando la independencia de los residuos y validando el ajuste del modelo.</p>
+<p>Dado que el <span class="math inline">\(p\text{-valor} &gt; 0.05\)</span>, no se puede rechazar la hipótesis nula de que los residuos son ruido blanco. Esto confirma que los residuos del modelo no presentan autocorrelación significativa, validando así el ajuste del modelo ARIMA.</p>
+<hr>
+</div>
+<div id="predicción" class="section level2" number="5.11">
+<h2>
+<span class="header-section-number">5.11</span> 10. Predicción<a class="anchor" aria-label="anchor" href="#predicci%C3%B3n"><i class="fas fa-link"></i></a>
+</h2>
+<p>Realizamos predicciones para los próximos intervalos usando el modelo ajustado.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/forecast-1.png" width="672"></div>
+<p>El gráfico muestra la serie temporal original superpuesta con la predicción generada por el modelo <strong>ARIMA(4,1,0)</strong>. Aunque las predicciones siguen la tendencia general de la serie, el resultado es muy similar al original debido a que el modelo representa una diferenciación de primer orden, capturando únicamente cambios incrementales sin agregar términos de media móvil (<span class="math inline">\(q\)</span>) y usando 4 para el autorregresivo.</p>
+<hr>
+</div>
+<div id="evaluación-de-predicciones" class="section level2" number="5.12">
+<h2>
+<span class="header-section-number">5.12</span> 11. Evaluación de Predicciones<a class="anchor" aria-label="anchor" href="#evaluaci%C3%B3n-de-predicciones"><i class="fas fa-link"></i></a>
+</h2>
+<p>Se evalúan las predicciones contra los datos de prueba usando métricas de error.</p>
+<pre><code>## MAE en el conjunto de entrenamiento: 0.004067731</code></pre>
+<pre><code>## MAE en el conjunto de prueba: 0.07728354</code></pre>
+<p>El error absoluto medio (MAE) del modelo en el conjunto de entrenamiento es <strong>0.00406</strong>, mientras que en el conjunto de prueba es significativamente mayor, con un valor de <strong>0.0772</strong>. Esto sugiere que el modelo se ajusta bien a los datos de entrenamiento, pero tiene dificultades para generalizar a datos no vistos, indicando un posible sobreajuste o la necesidad de mejorar la capacidad predictiva del modelo.</p>
+<hr>
+</div>
+<div id="conclusiones-1" class="section level2" number="5.13">
+<h2>
+<span class="header-section-number">5.13</span> 12. Conclusiones<a class="anchor" aria-label="anchor" href="#conclusiones-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>Las siguientes son las conlusiones de las actividares realizadas:</p>
+<ul>
+<li>
+<strong>Ajuste del Modelo ARIMA</strong>:
+<ul>
+<li>Un modelo <strong>ARIMA(4,1,0)</strong>, incorporó términos autorregresivos (<span class="math inline">\(p = 4\)</span>) y mostró mejoras sutiles respecto al ARIMA(0,1,0) probado inicialmente en los indicadores como <strong>log-likelihood = 74553.92</strong> y <strong>AIC = -149097.8</strong>, con residuos que cumplen las suposiciones de ruido blanco y normalidad.</li>
+</ul>
+</li>
+<li>
+<strong>Validación del Modelo</strong>:
+<ul>
+<li>La prueba <strong>Box-Ljung</strong> confirmó que los residuos del modelo <strong>ARIMA(4,1,0)</strong> son independientes y no presentan autocorrelación significativa (<span class="math inline">\(p\text{-valor} = 0.9999\)</span>).</li>
+<li>Los residuos mostraron una distribución aproximadamente normal, validando aún más la calidad del modelo ajustado.</li>
+</ul>
+</li>
+<li>
+<strong>Evaluación de Predicciones</strong>:
+<ul>
+<li>El <strong>MAE en el conjunto de entrenamiento</strong> fue de <strong>0.00406</strong>, mientras que en el conjunto de prueba aumentó significativamente a <strong>0.07728354</strong>, lo que indica que el modelo tiene dificultades para generalizar a datos no vistos, posiblemente debido a sobreajuste o características complejas no capturadas.</li>
+</ul>
+</li>
+<li>
+<strong>Limitaciones y Mejoras</strong>:
+<ul>
+<li>Aunque el modelo <strong>ARIMA(4,1,0)</strong> ofrece un mejor ajuste que el <strong>ARIMA(0,1,0)</strong>, no logra reducir el error en el conjunto de prueba de forma significativa.</li>
+<li>Sería recomendable explorar modelos más avanzados, como <strong>SARIMA</strong>, para capturar componentes estacionales, o incluir variables exógenas para mejorar las predicciones.</li>
+</ul>
+</li>
+</ul>
+<p>El uso de la metodología <strong>Box-Jenkins</strong> permitió identificar patrones y ajustar modelos que explican las características principales de la serie temporal. Sin embargo, la discrepancia entre el desempeño en los conjuntos de entrenamiento y prueba resalta la necesidad de modelos más robustos para mejorar la capacidad predictiva.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="an%C3%A1lisis-de-series-de-tiempo-con-el-m%C3%A9todo-holt-winters.html"><span class="header-section-number">4</span> Análisis de Series de Tiempo con el Método Holt-Winters</a></div>
+<div class="empty"></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#modelos-estacionarios"><span class="header-section-number">5</span> Modelos Estacionarios</a></li>
+<li><a class="nav-link" href="#objetivo"><span class="header-section-number">5.1</span> Objetivo</a></li>
+<li><a class="nav-link" href="#carga-y-exploraci%C3%B3n-de-los-datos"><span class="header-section-number">5.2</span> 1. Carga y Exploración de los Datos</a></li>
+<li><a class="nav-link" href="#limpieza-y-preprocesamiento-de-los-datos"><span class="header-section-number">5.3</span> 2. Limpieza y Preprocesamiento de los Datos</a></li>
+<li><a class="nav-link" href="#divisi%C3%B3n-del-dataset-en-conjuntos-de-entrenamiento-y-validaci%C3%B3n"><span class="header-section-number">5.4</span> 3. División del Dataset en Conjuntos de Entrenamiento y Validación</a></li>
+<li><a class="nav-link" href="#normalizaci%C3%B3n-de-los-datos"><span class="header-section-number">5.5</span> 4. Normalización de los Datos</a></li>
+<li><a class="nav-link" href="#verificaci%C3%B3n-de-estacionariedad"><span class="header-section-number">5.6</span> 5. Verificación de Estacionariedad</a></li>
+<li><a class="nav-link" href="#transformaci%C3%B3n-a-estacionariedad"><span class="header-section-number">5.7</span> 6. Transformación a Estacionariedad</a></li>
+<li><a class="nav-link" href="#an%C3%A1lisis-acf-y-pacf"><span class="header-section-number">5.8</span> 7. Análisis ACF y PACF</a></li>
+<li><a class="nav-link" href="#ajuste-del-modelo-arima"><span class="header-section-number">5.9</span> 8. Ajuste del Modelo ARIMA</a></li>
+<li><a class="nav-link" href="#validaci%C3%B3n-del-modelo"><span class="header-section-number">5.10</span> 9. Validación del Modelo</a></li>
+<li><a class="nav-link" href="#predicci%C3%B3n"><span class="header-section-number">5.11</span> 10. Predicción</a></li>
+<li><a class="nav-link" href="#evaluaci%C3%B3n-de-predicciones"><span class="header-section-number">5.12</span> 11. Evaluación de Predicciones</a></li>
+<li><a class="nav-link" href="#conclusiones-1"><span class="header-section-number">5.13</span> 12. Conclusiones</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>EUR/USD</strong>" was written by Harvey Bastidas, Andrés Caicedo, Alexander Alvarado. It was last built on 2024-11-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

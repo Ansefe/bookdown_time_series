@@ -29,3 +29,17 @@ suavizado-exponencial-simple
 suavizado-exponencial-doble-aditivo-y-multiplicativo
 calculo-de-error
 conclusiones
+modelos-estacionarios
+objetivo
+carga-y-exploración-de-los-datos
+limpieza-y-preprocesamiento-de-los-datos
+división-del-dataset-en-conjuntos-de-entrenamiento-y-validación
+normalización-de-los-datos
+verificación-de-estacionariedad
+transformación-a-estacionariedad
+análisis-acf-y-pacf
+ajuste-del-modelo-arima
+validación-del-modelo
+predicción
+evaluación-de-predicciones
+conclusiones-1

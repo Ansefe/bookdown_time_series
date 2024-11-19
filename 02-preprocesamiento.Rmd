@@ -73,7 +73,7 @@ forex_ts <- ts(close_prices, frequency = 1)
 
 Aplicaremos una primera diferenciación.
 
-```{r differencing, echo=FALSE}
+```{r differencing-1, echo=FALSE}
 # Diferenciar la serie para intentar lograr estacionariedad
 forex_diff <- diff(forex_ts, differences = 1)
 
