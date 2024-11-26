@@ -43,3 +43,9 @@ validación-del-modelo
 predicción
 evaluación-de-predicciones
 conclusiones-1
+modelos-estacionarios-en-series-de-tiempo
+carga-y-exploración-de-los-datos-1
+limpieza-y-preprocesamiento-de-los-datos-1
+división-del-dataset-en-conjuntos-de-entrenamiento-y-validación-1
+ajuste-del-modelo
+evaluación-del-modelo

@@ -1,0 +1,116 @@
+# Modelos Estacionarios en series de tiempo
+
+El Algoritmo prophet permite pronosticar series de tiempo adaptandose a tendencias no lineales, con estacionalidad e involucrando dias festivos o periodos de vacaciones.
+
+Realizaremos la prediccion de nuestros serie basados en el Modelo Prophet.
+
+## 1. Carga y Exploración de los Datos
+
+Cargamos los paquetes necesarios y el dataset EURUSD_ForexTrading_4hrs.csv que contiene los tipos de cambio Euro Dolar históricos de 2003 a 2021
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(prophet)
+library(TTR)
+library(ggplot2)
+library(fpp3)
+
+data <- read.csv("./EURUSD_ForexTrading_4hrs.csv")
+
+head(data)
+
+```
+
+## 2. Limpieza y Preprocesamiento de los Datos
+
+Continuamos trabajando con la seleccionan las columnas relevantes, la columna de precio de cierre de la negociacion "Close" y para el modelo prophet necesitamos la fecha. Posteriormente se convierten en una serie temporal.
+
+Graficamos los datos originales en funcion del precio de cierre (Close)
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+library(lubridate)
+library(xts)
+data_clean <- data %>% select(Gmt.time,close)
+data_clean$Gmt.time <- parse_date_time(data_clean$Gmt.time,"dmy HMS")
+data_clean$Gmt.time <- date(data_clean$Gmt.time)
+data_clean
+
+
+# Convertir a serie de tiempo (xts)
+serie_temporal <- xts(data_clean$close, order.by = data_clean$Gmt.time)
+plot(serie_temporal, main = "Serie Temporal", ylab = "Precio de Cierre", xlab = "Tiempo")
+
+
+```
+
+Se evidencian fluctuaciones significativas que reflejan los cambios en el mercado durante el período analizado. La serie muestra patrones claros de tendencias ascendentes y descendentes, lo que sugiere posibles componentes de largo plazo y estacionalidad que deben ser tratados en etapas posteriores del análisis.
+
+## 3. División del Dataset en Conjuntos de Entrenamiento y Validación
+
+Se divide el dataset en 70% para entrenamiento y 30% para evaluación del modelo.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+set.seed(123)  # Para reproducibilidad
+total_filas <- nrow(data_clean)
+filas_entrenamiento <- floor(0.7 * total_filas)
+
+datos_entrenamiento <- data_clean[1:filas_entrenamiento, ]
+datos_prueba <- data_clean[(filas_entrenamiento + 1):total_filas, ]
+
+datos_prueba
+
+
+```
+
+## 4. Ajuste del modelo
+
+Los parametros necesarios para el promdeo prophet son la fecha y los datos por lo tanto asigmanos los nombres a cada uno y ajustamos el modelo con la función prophet, usamos predict para predecir los valores futuros según el modelo generado
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+colnames(datos_prueba)<-c("ds", "y")
+modelo_prophet <- prophet(datos_prueba)
+future <- make_future_dataframe(modelo_prophet, periods = 600)
+tail(future)
+forecast <- predict(modelo_prophet, future)
+tail(forecast[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')]) #la variable yhat es la predicción
+
+```
+
+Como se puede, se puede evidenciar tenemos tres campos de salida, que corresponden al valor de la prediccion yhat y los limites inferiores y superiores.
+
+Ahora graficamos la prediccion:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+plot(modelo_prophet, forecast)
+```
+
+Revisamos la tendencia, estacionalidad semanal y estacionalidad anual
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+prophet_plot_components(modelo_prophet, forecast)
+```
+
+## 5. Evaluación del modelo
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+forecast_metric_data = forecast %>% 
+  as_tibble() %>% 
+  mutate(ds = as.Date(ds)) %>% 
+  filter(ds>=ymd("2023-06-07"))
+
+RMSE = sqrt(mean((datos_prueba$y - forecast_metric_data$yhat)^2))
+
+MAE = mean(abs(datos_prueba$y - forecast_metric_data$yhat))
+
+MAPE = mean(abs((datos_prueba$y - forecast_metric_data$yhat)/datos_prueba$y))
+
+print(paste("RMSE:",round(RMSE,2)))
+print(paste("MAE:",round(MAE,2)))
+print(paste("MAPE:",round(MAPE,2)))
+```
+
+RMSE: 0.05, MAE0.05 and MAPE0.05 son los valores del modelo
+
+**Evaluación de Predicciones**: - El **MAE en el conjunto de entrenamiento** fue de **0.05**
