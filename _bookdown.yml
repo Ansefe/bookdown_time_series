@@ -9,4 +9,4 @@ rmd_files:
   - "02-preprocesamiento.Rmd"  # Preprocesamiento y visualización
   - "03-holt_winters.Rmd"  # holt_winters
   - "04-box_jenkins.Rmd" # Modelos estacionarios
-  - "05-prophet.Rmd" # Modelos estacionarios
+  - "05-prophet3.Rmd" # Modelos estacionarios

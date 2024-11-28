@@ -1,0 +1,191 @@
+# Modelos Estacionarios en series de tiempo
+
+El Algoritmo prophet permite pronosticar series de tiempo adaptandose a tendencias no lineales, con estacionalidad e involucrando dias festivos o periodos de vacaciones.
+
+Realizaremos la prediccion de nuestros serie basados en el Modelo Prophet.
+
+## 1. Carga y Exploración de los Datos
+
+Cargamos los paquetes necesarios y el dataset EURUSD_ForexTrading_4hrs.csv que contiene los tipos de cambio Euro Dolar históricos de 2003 a 2021
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(prophet)
+library(dplyr)
+library(readr)
+library(TTR)
+library(ggplot2)
+library(fpp3)
+
+data <- read.csv("./EURUSD_ForexTrading_4hrs.csv")
+
+head(data)
+
+```
+
+## 2. Limpieza y Preprocesamiento de los Datos
+
+Continuamos trabajando con la seleccionan las columnas relevantes, la columna de precio de cierre de la negociacion "Close" y para el modelo prophet necesitamos la fecha. Posteriormente se convierten en una serie temporal.
+
+Graficamos los datos originales en funcion del precio de cierre (Close)
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+library(lubridate)
+library(xts)
+# Seleccionar columnas relevantes
+data_clean <- data %>% select(Gmt.time, close)
+
+# Convertir la columna Gmt.time al formato POSIXct con su formato original
+data_clean$ds <- as.POSIXct(data_clean$Gmt.time, format = "%d.%m.%Y %H:%M:%S")
+
+# Mantener el formato de presentación como %Y-%m-%d %H:%M:%S (sin alterar POSIXct)
+data_clean$ds <- format(data_clean$ds, format = "%Y-%m-%d %H:%M:%S")
+data_clean$ds <- as.POSIXct(data_clean$ds, format = "%Y-%m-%d %H:%M:%S")
+
+# Eliminar filas con valores NA
+data_clean <- na.omit(data_clean)
+
+# Convertir a serie de tiempo (xts)
+serie_temporal <- xts(data_clean$close, order.by = data_clean$ds)
+plot(serie_temporal, main = "Serie Temporal", ylab = "Precio de Cierre", xlab = "Tiempo")
+
+
+```
+
+Se evidencian fluctuaciones significativas que reflejan los cambios en el mercado durante el período analizado. La serie muestra patrones claros de tendencias ascendentes y descendentes, lo que sugiere posibles componentes de largo plazo y estacionalidad que deben ser tratados en etapas posteriores del análisis.
+
+## 3. División del Dataset en Conjuntos de Entrenamiento y Validación
+
+Se divide el dataset en 70% para entrenamiento y 30% para evaluación del modelo.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# Usaremos el 80% para entrenamiento y 20% para validación
+set.seed(123)  # Fijar semilla para reproducibilidad
+train_index <- floor(0.8 * nrow(data_clean))
+
+train_data <- data_clean[1:train_index, ]
+test_data <- data_clean[(train_index + 1):nrow(data_clean), ]
+
+```
+
+Normalización Min-Max basada únicamente en los datos de entrenamiento
+
+```{r}
+min_y <- min(train_data$close)
+max_y <- max(train_data$close)
+train_data$y <- (train_data$close - min_y) / (max_y - min_y)
+test_data$y <- (test_data$close - min_y) / (max_y - min_y)
+```
+
+## 5. Ajuste del modelo Facebook Prophet
+
+Los parametros necesarios para el promdeo prophet son la fecha y los datos por lo tanto asigmanos los nombres a cada uno y ajustamos el modelo con la función prophet, usamos predict para predecir los valores futuros según el modelo generado
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# Entrenar el modelo Prophet
+# Convertir al formato POSIXct directamente desde el original
+#train_data$ds <- as.POSIXct(train_data$ds, format = "%Y-%m-%d %H:%M:%S")
+
+# Crear dataframe para almacenar resultados
+prophet_results <- data.frame(
+  Dataset = character(),
+  Actual = numeric(),
+  Predicted = numeric()
+)
+
+# Entrenar Prophet
+for (i in 128:(nrow(train_data) - 1)) {
+  subset_train <- train_data[1:i, ]
+  model <- prophet(subset_train, verbose = FALSE)
+  
+  # Predecir el siguiente tick
+  future <- data.frame(ds = train_data$ds[i + 1])
+  forecast <- predict(model, future)
+  
+  prophet_results <- rbind(
+    prophet_results,
+    data.frame(
+      Dataset = "Training",
+      Actual = train_data$y[i + 1],
+      Predicted = forecast$yhat
+    )
+  )
+}
+```
+
+```{r}
+# 6. Generar predicciones para el conjunto de entrenamiento
+#future_train <- make_future_dataframe(model, periods = 1)  # Solo entrenamiento
+# Convertir al formato POSIXct directamente desde el original
+#forecast_train <- predict(model, future_train)
+
+# Repetir para validación
+for (i in 1:(nrow(test_data) - 1)) {
+  subset_train <- rbind(train_data, test_data[1:i, ])
+  model <- prophet(subset_train, verbose = FALSE)
+  
+  # Predecir el siguiente tick
+  future <- data.frame(ds = test_data$ds[i + 1])
+  forecast <- predict(model, future)
+  
+  prophet_results <- rbind(
+    prophet_results,
+    data.frame(
+      Dataset = "Validation",
+      Actual = test_data$y[i + 1],
+      Predicted = forecast$yhat
+    )
+  )
+}
+  
+
+```
+
+## 7. Evaluar el modelo en el conjunto de validación
+
+```{r}
+# 7. Evaluar el modelo en el conjunto de validación
+future_test <- test_data %>%
+  select(ds) %>%
+  mutate(ds = as.Date(ds))  # Asegurar que las fechas sean de tipo Date
+forecast_test <- predict(model, future_test)
+```
+
+Como se puede, se puede evidenciar tenemos tres campos de salida, que corresponden al valor de la prediccion yhat y los limites inferiores y superiores.
+
+Ahora graficamos la prediccion:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+plot(modelo_prophet, forecast)
+```
+
+Revisamos la tendencia, estacionalidad semanal y estacionalidad anual
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+prophet_plot_components(modelo_prophet, forecast)
+```
+
+## 5. Evaluación del modelo
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+forecast_metric_data = forecast %>% 
+  as_tibble() %>% 
+  mutate(ds = as.Date(ds)) %>% 
+  filter(ds>=ymd("2023-06-07"))
+
+RMSE = sqrt(mean((datos_prueba$y - forecast_metric_data$yhat)^2))
+
+MAE = mean(abs(datos_prueba$y - forecast_metric_data$yhat))
+
+MAPE = mean(abs((datos_prueba$y - forecast_metric_data$yhat)/datos_prueba$y))
+
+print(paste("RMSE:",round(RMSE,2)))
+print(paste("MAE:",round(MAE,2)))
+print(paste("MAPE:",round(MAPE,2)))
+```
+
+RMSE: 0.05, MAE0.05 and MAPE0.05 son los valores del modelo
+
+**Evaluación de Predicciones**: - El **MAE en el conjunto de entrenamiento** fue de **0.05**
