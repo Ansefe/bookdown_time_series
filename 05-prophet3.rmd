@@ -65,7 +65,7 @@ ggplot(data, aes(x = ds, y = y)) +
 
 ## 2. Análisis de Estacionalidad
 
-Para analizar la estacionariedad de la serie temporal, se utilizó la descomposición STL, la función de autocorrelación (ACF) y la prueba de Augmented Dickey-Fuller (ADF). Los pasos y los resultados fueron los siguientes:
+Realizamos el analisis de estacionariedad para realizar la técnica de modelado ARIMA, donde se asumen que la serie temporal es estacionaria. Si no lo es, las predicciones pueden ser inexactas. Para analizar la estacionariedad de la serie temporal, se utilizó la descomposición STL, la función de autocorrelación (ACF) y la prueba de Augmented Dickey-Fuller (ADF). Los pasos y los resultados fueron los siguientes:
 
 1.  **Descomposición de la Serie Temporal**:
 
@@ -87,6 +87,10 @@ Para analizar la estacionariedad de la serie temporal, se utilizó la descomposi
 Como se observa, después de la diferenciación la serie se vuelve estacionaria, esto se usará solo en ARIMA que requiere que la serie de tiempo sea estacionaria, para prophet y ets en cambio, la predicción se beneficia de la estacionalidad únicamente, mas no requieren de estacionariedad.
 
 ## 3. Ajuste y Predicciones con Prophet
+
+Las predicciones con Prophet tiene muchas ventajas,permite trabajar con series temporales incorporando periodos con estacionalidad, tendencia y datos irregulares con un modelo robusto, la estructuracion y ajuste del modelo son sencillas y sirven como inside para comparacion con otros modelos.
+
+Procedemos con los ajustes necesarios para la prediccion con prophet:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, dev = "png"}
 # ===========================
@@ -177,6 +181,8 @@ ggplot(training_results_prophet, aes(x = ds)) +
 ```
 
 ## 4. Ajuste y Predicción en Validación
+
+El proceso de validacion se realizo entrenado el modelo con la tecnica sliding window con stride 6 que corresponde a un dia para predecir los siguentes, se utilizo para encontrar subcobjutos que cumplan con condiciones especificas. Para realizar esta seleccion se valido la tecnica Rolling window que es un sliding window son stride 1, es decir que va tick a tick, mientras en sliding window presento mejor ajuste a nuestro data set saltando un numero de ticks diario.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, dev = "png"}
 # ===========================
@@ -366,7 +372,11 @@ mae_results[mae_results$Modelo == "Prophet", "MAE_Validacion"] <- mae_final
 
 ```
 
+Estos resultados indican un ajuste razonable del modelo a los datos normalizados, con residuos independientes y métricas de error bajas en el conjunto de entrenamiento, con un MAE de 0,0258 que representan que en promedio las prediciones del modelo se desvian 0,0258 unidades de los valores reales, indicado una desviacion baja.
+
 ## 5. Ajuste del Modelo ARIMA y Evaluación de MAE en Entrenamiento
+
+Ajustamos un modelo ARIMA utilizando los valores $y$ obtenidos previamente. Usamos auto.arima para seleccionar automáticamente los mejores parámetros.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, dev = "png"}
 
@@ -420,7 +430,11 @@ ggplot() +
 
 ```
 
+Como lo habiamos evidenciado en el modelo anterior los resultados indican un ajuste razonable del modelo a los datos normalizados, con residuos independientes y métricas de error bajas en el conjunto de entrenamiento. Sin embargo, la presencia de valores extremos en las métricas como MAPE y MPE ($-\infty, \infty$) sugiere posibles problemas en los cálculos debido a la normalización o a valores cercanos a cero.
+
 ## 6. Predicción Día a Día en Validación (ARIMA)
+
+Realizamos la predicion del modelo ARIMA de los ultimo 365 dias con tick 6 (diario)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, dev = "png"}
 # ===========================
@@ -532,7 +546,11 @@ ggplot(data = data.frame(Tick = 1:length(actual_values), Actual = actual_values,
 
 ```
 
+El error absoluto medio (MAE) del modelo del dia es 0.0072, mientras que en el acumulado es significativamente menor, con un valor de 0.0054. Esto sugiere que el modelo se ajusta bien a los datos de entrenamiento, pero tiene dificultades para generalizar a datos no vistos, indicando un posible sobreajuste o la necesidad de mejorar la capacidad predictiva del modelo.
+
 ## 7. Ajuste y Evaluación del Modelo ETS en Entrenamiento
+
+En esta etapa se realiza el ajuste y evaluacion del modelo ETS
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, dev = "png"}
 # ===========================
@@ -583,6 +601,8 @@ ggplot() +
   theme_minimal()
 
 ```
+
+Los resultados del modelo EST entrenado nos indican un ajuste razonable del modelo a los datos normalizados, con residuos independientes y métricas de error bajas en el conjunto de entrenamiento. Sin embargo, la presencia de valores extremos en las métricas como MAPE y MPE ($-\infty, \infty$) indican problemas en la evaluación de la precisión del modelo. Un MAPE infinito sugueire que el modelo no es asertado para el caso, similar a lo observado en el modelo ARIMA
 
 ## 8. Predicciones Día a Día en Validación con ETS
 
@@ -693,6 +713,8 @@ ggplot(data = data.frame(Tick = 1:length(actual_values_ets), Actual = actual_val
 
 
 ```
+
+El error absoluto medio (MAE) del modelo del dia es 0.0072 idicando un valor bajo que indica precision en la proyeccion diaria, sin embargo el MAE acumulado es significativamente menor, con un valor de 0.0053 idicando que hay un mayor ajuste en la seria acumulada y mayor presicion. Pero al igual que con el modelo anterior el modelo se ajusta bien a los datos de entrenamiento, pero tiene dificultades para generalizar a datos no vistos.
 
 ## 9. Tabla Comparativa de MAE
 
