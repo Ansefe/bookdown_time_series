@@ -141,7 +141,7 @@
 
 \title{EUR/USD}
 \author{Harvey Bastidas, Andrés Caicedo, Alexander Alvarado}
-\date{2024-11-29}
+\date{2024-12-10}
 
 \begin{document}
 \maketitle
@@ -1786,6 +1786,163 @@ Es importante considerar que el MAE es solo una métrica de error absoluto. Para
 \item
   \textbf{Limitación de Prophet:} Con un MAE en validación de \textbf{0.0258}, Prophet no logró capturar adecuadamente los patrones intradía. Ajustes adicionales en sus parámetros o su combinación con otras técnicas podrían ser necesarios para mejorar su rendimiento en escenarios similares.
 \end{enumerate}
+
+\chapter{Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN)}\label{redes-neuronales-rn-y-redes-neuronales-recurrentes-rnn}
+
+Las redes neurales \textbf{RN} se componen de nodos que cumplen la funcion de neuronas para el rocesamiento de los datos partiendo de una entrada emiten un valor de salida. Se han estado empleando en numerosas aplicaciones, entre sus principales ventajas, se menciona el hecho de no ser lineales, alta capacidad de aprendizaje y permiten describir la distribución de los datos, ya que pueden aprender a partir de muestras y son faciles de implementar por medio de algoritmos sencillos de discriminación basados en funciones no lineales si fuera necesario. Las redes neuronales recurrentes \textbf{RNN} son entrenadas para procesar y convertir una entrada de datos secuencial en una salida de datos secuencial específica, es decir se alimentan de sus propios resultados.
+
+\section{1. Carga y Preprocesamiento del Dataset}\label{carga-y-preprocesamiento-del-dataset-1}
+
+Cargamos los paquetes necesarios y el dataset EURUSD\_ForexTrading\_4hrs.csv que contiene los tipos de cambio Euro Dolar históricos de 2003 a 2021 y procedemos con el procesamiento y depuracion de las variables necesarias para los modelos de redes neuronales recurrentes RNN
+
+\includegraphics{bookdown_time_series_files/figure-latex/rnn-1-1.pdf}
+
+\section{2. Creación de las ventanas deslizantes}\label{creaciuxf3n-de-las-ventanas-deslizantes}
+
+En esta sección, definimos una función para crear ventanas de entrenamiento y prueba. Cada entrada constará de window\_size ticks (32) y se predecirán los siguientes 6 ticks (horizonte de predicción), moviendo la ventana cada 6 ticks.
+
+\section{3. Entrenamiento del Modelo ELMAN}\label{entrenamiento-del-modelo-elman}
+
+Como lo observamos en la teoria normalmente tiene dos capas, pero difiere de la red convencional de dos capas en que la capa oculta tiene una realimentación desde su salida a su entrada, esto permite a la red de Elman aprender a reconocer y generar patrones temporales o variantes en el tiempo. Generamos predicciones sobre el conjunto de entrenamiento utilizando el modelo entrenado y reconstruimos la serie de predicciones para comparar con los datos reales. Calculamos el MAE para el conjunto de entrenamiento y lo almacenamos en la tabla comparativa.
+
+\begin{verbatim}
+## Cargando paquete requerido: quantmod
+\end{verbatim}
+
+\begin{verbatim}
+## Cargando paquete requerido: xts
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## ######################### Warning from 'xts' package ##########################
+## #                                                                             #
+## # The dplyr lag() function breaks how base R's lag() function is supposed to  #
+## # work, which breaks lag(my_xts). Calls to lag(my_xts) that you type or       #
+## # source() into this session won't work correctly.                            #
+## #                                                                             #
+## # Use stats::lag() to make sure you're not using dplyr::lag(), or you can add #
+## # conflictRules('dplyr', exclude = 'lag') to your .Rprofile to stop           #
+## # dplyr from breaking base R's lag() function.                                #
+## #                                                                             #
+## # Code in packages is not affected. It's protected by R's namespace mechanism #
+## # Set `options(xts.warn_dplyr_breaks_lag = FALSE)` to suppress this warning.  #
+## #                                                                             #
+## ###############################################################################
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Adjuntando el paquete: 'xts'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:dplyr':
+## 
+##     first, last
+\end{verbatim}
+
+\includegraphics{bookdown_time_series_files/figure-latex/rnn-3-1.pdf}
+
+Como se puede observar en el grafico vemos como evoluciona el error de la red con el numero de iteraciones para los parametros expuestos y tiende a cero, evidenciando el ajuste en cada iteracion con la data real.
+
+\begin{verbatim}
+## [1] "MAE Entrenamiento Elman RNN: 0.041"
+\end{verbatim}
+
+\includegraphics{bookdown_time_series_files/figure-latex/rnn-4-1.pdf}
+
+El grafico de entrenamiento muestra visualmente un ajuste bueno de la prediccion del modelo con la realidad.
+
+\section{4. Validación del Modelo Elman}\label{validaciuxf3n-del-modelo-elman}
+
+En esta sección, utilizamos el modelo Elman previamente entrenado para generar predicciones sobre el conjunto de validación (test). Calculamos el MAE para el conjunto de validación y actualizamos la tabla comparativa. Visualizamos los resultados superponiendo las predicciones con los datos reales normalizados.
+
+\begin{verbatim}
+## [1] "MAE Validación Elman RNN: 0.0108"
+\end{verbatim}
+
+\includegraphics{bookdown_time_series_files/figure-latex/rnn-5-1.pdf}
+
+El grafico de validacion de la predicion muestra un ajuste menor que el entrenamiento con un MAE de 0.0108, lo que indica que el modelo de entrenamiento tiene mejor respuesta, situacion que detallaremos en las conclusiones
+
+\section{5. Entrenamiento del Modelo Jordan}\label{entrenamiento-del-modelo-jordan}
+
+En esta sección, entrenamos una \textbf{Red Neuronal Jordan} utilizando las ventanas deslizantes creadas anteriormente. Para optimizar el tiempo de entrenamiento, reducimos el número máximo de iteraciones y ajustamos el tamaño de la capa oculta en 10 al igual que se hizo con elman. Posteriormente, generamos predicciones sobre el conjunto de entrenamiento y calculamos el \textbf{MAE} correspondiente.
+
+\includegraphics{bookdown_time_series_files/figure-latex/rnn-6-1.pdf}
+
+Como se puede observar en el grafico vemos como evoluciona el error de la red con el numero de iteraciones para los parametros expuestos y tiende a cero, evidenciando el ajuste en cada iteracion con la data real.
+
+\begin{verbatim}
+## [1] "MAE Entrenamiento Jordan RNN: 0.0181"
+\end{verbatim}
+
+\includegraphics{bookdown_time_series_files/figure-latex/rnn-7-1.pdf}
+
+Se evidencia un buen ajuste del modelo de red neuronal Jordan de entrenamiento con un MAE de 0.0181, superior al modelo Elman
+
+\section{6. Validación del Modelo Jordan}\label{validaciuxf3n-del-modelo-jordan}
+
+En esta sección, se usó el modelo Jordan previamente entrenado para generar predicciones sobre el conjunto de validación (test). Calculamos el MAE para el conjunto de validación y actualizamos la tabla comparativa. Visualizamos los resultados superponiendo las predicciones con los datos reales normalizados.
+
+\begin{verbatim}
+## [1] "MAE Validación Jordan RNN: 0.0121"
+\end{verbatim}
+
+\includegraphics{bookdown_time_series_files/figure-latex/rnn-8-1.pdf}
+
+El modelo de prediccion de Jordan evidencia un mejor ajuste que el entrenamiento suguriendo la incorporacion de generalizacion en el modelo y el ajuste de parametros que en un su conjunto benefician el resultado del modelo, con un MAE de 0.0121, sin embargo esto nos puede indicar algunos problemas que detallaremos en las conclusiones.
+
+\section{7. Análisis de Resultados}\label{anuxe1lisis-de-resultados}
+
+En esta sección, presentamos una tabla comparativa de los errores MAE obtenidos tanto en el conjunto de entrenamiento como en el de validación para ambos modelos: Elman y Jordan. Esta tabla te permitirá evaluar y comparar el rendimiento de cada modelo
+
+\begin{table}
+
+\caption{\label{tab:rnn-9}Comparación de MAE entre Elman y Jordan RNN}
+\centering
+\begin{tabular}[t]{l|r|r}
+\hline
+Modelo & MAE Entrenamiento & MAE Validación\\
+\hline
+Elman RNN & 0.0410 & 0.0108\\
+\hline
+Jordan RNN & 0.0181 & 0.0121\\
+\hline
+\end{tabular}
+\end{table}
+
+Como se puede observar, para ambos modelos, se obtuvo un mejor desempeño con el dataset de validación que con el de training, este comportamiento sugiere:
+
+\begin{itemize}
+\tightlist
+\item
+  Subajuste (Underfitting): Ambos modelos podrían no estar capturando completamente la complejidad de los datos de entrenamiento, lo que resulta en errores de entrenamiento relativamente altos. Sin embargo, sorprendentemente, el modelo Elman RNN logra generalizar de manera más efectiva en el conjunto de validación, reflejado en un MAE significativamente menor.
+\end{itemize}
+
+-Posible Beneficio de la Regularización o Configuración del Modelo: Es posible que la configuración actual de los modelos, como el número de neuronas en las capas ocultas o la tasa de aprendizaje, esté contribuyendo a una mejor generalización en el conjunto de validación, aunque a costa de un ajuste menos preciso en el entrenamiento.
+
+\begin{itemize}
+\tightlist
+\item
+  Calidad y Distribución de los Datos: La distribución de los datos entre los conjuntos de entrenamiento y validación podría estar influyendo en estos resultados. Si el conjunto de validación contiene datos que son, por alguna razón, más fáciles de predecir o menos ruidosos que el conjunto de entrenamiento, esto podría explicar el menor MAE observado.
+\end{itemize}
+
+En resumen, los resultados indican que ambos modelos presentan signos de subajuste, ya que no logran reducir suficientemente el error en el conjunto de entrenamiento. Sin embargo, el modelo Elman RNN muestra una mejor capacidad de generalización en el conjunto de validación en comparación con el modelo Jordan RNN. Para mejorar el rendimiento de ambos modelos y reducir el subajuste, se podrían considerar las siguientes acciones:
+
+\begin{itemize}
+\item
+  Aumentar la Complejidad del Modelo: Incrementar el número de neuronas en las capas ocultas o añadir más capas puede permitir que el modelo capture patrones más complejos en los datos.
+\item
+  Ajustar Hiperparámetros: Experimentar con diferentes tasas de aprendizaje, funciones de activación y métodos de regularización puede ayudar a optimizar el desempeño del modelo.
+\item
+  Incrementar la Cantidad de Datos: Utilizar más datos de entrenamiento puede mejorar la capacidad del modelo para aprender representaciones más precisas de la serie temporal.
+\item
+  Revisar la División de Datos: Asegurarse de que la división entre entrenamiento y validación sea representativa y que no existan sesgos que faciliten la predicción en el conjunto de validación.
+\end{itemize}
+
+Estos ajustes podrían contribuir a reducir el MAE en el conjunto de entrenamiento sin comprometer, e incluso mejorando, el rendimiento en el conjunto de validación, logrando así un equilibrio más óptimo entre ajuste y generalización.
 
   \bibliography{book.bib,packages.bib}
 

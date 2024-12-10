@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 7 Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN) | EUR/USD</title>
+<meta name="author" content="Harvey Bastidas, Andrés Caicedo, Alexander Alvarado">
+<meta name="description" content="Las redes neurales RN se componen de nodos que cumplen la funcion de neuronas para el rocesamiento de los datos partiendo de una entrada emiten un valor de salida. Se han estado empleando en...">
+<meta name="generator" content="bookdown 0.41 with bs4_book()">
+<meta property="og:title" content="Chapter 7 Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN) | EUR/USD">
+<meta property="og:type" content="book">
+<meta property="og:description" content="Las redes neurales RN se componen de nodos que cumplen la funcion de neuronas para el rocesamiento de los datos partiendo de una entrada emiten un valor de salida. Se han estado empleando en...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 7 Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN) | EUR/USD">
+<meta name="twitter:description" content="Las redes neurales RN se componen de nodos que cumplen la funcion de neuronas para el rocesamiento de los datos partiendo de una entrada emiten un valor de salida. Se han estado empleando en...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.8.0/transition.js"></script><script src="libs/bs3compat-0.8.0/tabs.js"></script><script src="libs/bs3compat-0.8.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet">
+<script src="libs/bsTable-3.3.7/bootstrapTable.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">EUR/USD</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Justificación de elección del Dataset</a></li>
+<li><a class="" href="intro.html"><span class="header-section-number">2</span> Estructura de los datos</a></li>
+<li><a class="" href="preprocesamiento-y-visualizaci%C3%B3n.html"><span class="header-section-number">3</span> Preprocesamiento y Visualización</a></li>
+<li><a class="" href="an%C3%A1lisis-de-series-de-tiempo-con-el-m%C3%A9todo-holt-winters.html"><span class="header-section-number">4</span> Análisis de Series de Tiempo con el Método Holt-Winters</a></li>
+<li><a class="" href="modelos-estacionarios.html"><span class="header-section-number">5</span> Modelos Estacionarios</a></li>
+<li><a class="" href="modelos-estacionarios-en-series-de-tiempo.html"><span class="header-section-number">6</span> Modelos Estacionarios en series de tiempo</a></li>
+<li><a class="active" href="redes-neuronales-rn-y-redes-neuronales-recurrentes-rnn.html"><span class="header-section-number">7</span> Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN)</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="redes-neuronales-rn-y-redes-neuronales-recurrentes-rnn" class="section level1" number="7">
+<h1>
+<span class="header-section-number">7</span> Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN)<a class="anchor" aria-label="anchor" href="#redes-neuronales-rn-y-redes-neuronales-recurrentes-rnn"><i class="fas fa-link"></i></a>
+</h1>
+<p>Las redes neurales <strong>RN</strong> se componen de nodos que cumplen la funcion de neuronas para el rocesamiento de los datos partiendo de una entrada emiten un valor de salida. Se han estado empleando en numerosas aplicaciones, entre sus principales ventajas, se menciona el hecho de no ser lineales, alta capacidad de aprendizaje y permiten describir la distribución de los datos, ya que pueden aprender a partir de muestras y son faciles de implementar por medio de algoritmos sencillos de discriminación basados en funciones no lineales si fuera necesario. Las redes neuronales recurrentes <strong>RNN</strong> son entrenadas para procesar y convertir una entrada de datos secuencial en una salida de datos secuencial específica, es decir se alimentan de sus propios resultados.</p>
+<div id="carga-y-preprocesamiento-del-dataset-1" class="section level2" number="7.1">
+<h2>
+<span class="header-section-number">7.1</span> 1. Carga y Preprocesamiento del Dataset<a class="anchor" aria-label="anchor" href="#carga-y-preprocesamiento-del-dataset-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>Cargamos los paquetes necesarios y el dataset EURUSD_ForexTrading_4hrs.csv que contiene los tipos de cambio Euro Dolar históricos de 2003 a 2021 y procedemos con el procesamiento y depuracion de las variables necesarias para los modelos de redes neuronales recurrentes RNN</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/rnn-1-1.png" width="672"></div>
+</div>
+<div id="creación-de-las-ventanas-deslizantes" class="section level2" number="7.2">
+<h2>
+<span class="header-section-number">7.2</span> 2. Creación de las ventanas deslizantes<a class="anchor" aria-label="anchor" href="#creaci%C3%B3n-de-las-ventanas-deslizantes"><i class="fas fa-link"></i></a>
+</h2>
+<p>En esta sección, definimos una función para crear ventanas de entrenamiento y prueba. Cada entrada constará de window_size ticks (32) y se predecirán los siguientes 6 ticks (horizonte de predicción), moviendo la ventana cada 6 ticks.</p>
+</div>
+<div id="entrenamiento-del-modelo-elman" class="section level2" number="7.3">
+<h2>
+<span class="header-section-number">7.3</span> 3. Entrenamiento del Modelo ELMAN<a class="anchor" aria-label="anchor" href="#entrenamiento-del-modelo-elman"><i class="fas fa-link"></i></a>
+</h2>
+<p>Como lo observamos en la teoria normalmente tiene dos capas, pero difiere de la red convencional de dos capas en que la capa oculta tiene una realimentación desde su salida a su entrada, esto permite a la red de Elman aprender a reconocer y generar patrones temporales o variantes en el tiempo. Generamos predicciones sobre el conjunto de entrenamiento utilizando el modelo entrenado y reconstruimos la serie de predicciones para comparar con los datos reales. Calculamos el MAE para el conjunto de entrenamiento y lo almacenamos en la tabla comparativa.</p>
+<pre><code>## Cargando paquete requerido: quantmod</code></pre>
+<pre><code>## Cargando paquete requerido: xts</code></pre>
+<pre><code>## 
+## ######################### Warning from 'xts' package ##########################
+## #                                                                             #
+## # The dplyr lag() function breaks how base R's lag() function is supposed to  #
+## # work, which breaks lag(my_xts). Calls to lag(my_xts) that you type or       #
+## # source() into this session won't work correctly.                            #
+## #                                                                             #
+## # Use stats::lag() to make sure you're not using dplyr::lag(), or you can add #
+## # conflictRules('dplyr', exclude = 'lag') to your .Rprofile to stop           #
+## # dplyr from breaking base R's lag() function.                                #
+## #                                                                             #
+## # Code in packages is not affected. It's protected by R's namespace mechanism #
+## # Set `options(xts.warn_dplyr_breaks_lag = FALSE)` to suppress this warning.  #
+## #                                                                             #
+## ###############################################################################</code></pre>
+<pre><code>## 
+## Adjuntando el paquete: 'xts'</code></pre>
+<pre><code>## The following objects are masked from 'package:dplyr':
+## 
+##     first, last</code></pre>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/rnn-3-1.png" width="672"></div>
+<p>Como se puede observar en el grafico vemos como evoluciona el error de la red con el numero de iteraciones para los parametros expuestos y tiende a cero, evidenciando el ajuste en cada iteracion con la data real.</p>
+<pre><code>## [1] "MAE Entrenamiento Elman RNN: 0.041"</code></pre>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/rnn-4-1.png" width="672"></div>
+<p>El grafico de entrenamiento muestra visualmente un ajuste bueno de la prediccion del modelo con la realidad.</p>
+</div>
+<div id="validación-del-modelo-elman" class="section level2" number="7.4">
+<h2>
+<span class="header-section-number">7.4</span> 4. Validación del Modelo Elman<a class="anchor" aria-label="anchor" href="#validaci%C3%B3n-del-modelo-elman"><i class="fas fa-link"></i></a>
+</h2>
+<p>En esta sección, utilizamos el modelo Elman previamente entrenado para generar predicciones sobre el conjunto de validación (test). Calculamos el MAE para el conjunto de validación y actualizamos la tabla comparativa. Visualizamos los resultados superponiendo las predicciones con los datos reales normalizados.</p>
+<pre><code>## [1] "MAE Validación Elman RNN: 0.0108"</code></pre>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/rnn-5-1.png" width="672"></div>
+<p>El grafico de validacion de la predicion muestra un ajuste menor que el entrenamiento con un MAE de 0.0108, lo que indica que el modelo de entrenamiento tiene mejor respuesta, situacion que detallaremos en las conclusiones</p>
+</div>
+<div id="entrenamiento-del-modelo-jordan" class="section level2" number="7.5">
+<h2>
+<span class="header-section-number">7.5</span> 5. Entrenamiento del Modelo Jordan<a class="anchor" aria-label="anchor" href="#entrenamiento-del-modelo-jordan"><i class="fas fa-link"></i></a>
+</h2>
+<p>En esta sección, entrenamos una <strong>Red Neuronal Jordan</strong> utilizando las ventanas deslizantes creadas anteriormente. Para optimizar el tiempo de entrenamiento, reducimos el número máximo de iteraciones y ajustamos el tamaño de la capa oculta en 10 al igual que se hizo con elman. Posteriormente, generamos predicciones sobre el conjunto de entrenamiento y calculamos el <strong>MAE</strong> correspondiente.</p>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/rnn-6-1.png" width="672"></div>
+<p>Como se puede observar en el grafico vemos como evoluciona el error de la red con el numero de iteraciones para los parametros expuestos y tiende a cero, evidenciando el ajuste en cada iteracion con la data real.</p>
+<pre><code>## [1] "MAE Entrenamiento Jordan RNN: 0.0181"</code></pre>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/rnn-7-1.png" width="672"></div>
+<p>Se evidencia un buen ajuste del modelo de red neuronal Jordan de entrenamiento con un MAE de 0.0181, superior al modelo Elman</p>
+</div>
+<div id="validación-del-modelo-jordan" class="section level2" number="7.6">
+<h2>
+<span class="header-section-number">7.6</span> 6. Validación del Modelo Jordan<a class="anchor" aria-label="anchor" href="#validaci%C3%B3n-del-modelo-jordan"><i class="fas fa-link"></i></a>
+</h2>
+<p>En esta sección, se usó el modelo Jordan previamente entrenado para generar predicciones sobre el conjunto de validación (test). Calculamos el MAE para el conjunto de validación y actualizamos la tabla comparativa. Visualizamos los resultados superponiendo las predicciones con los datos reales normalizados.</p>
+<pre><code>## [1] "MAE Validación Jordan RNN: 0.0121"</code></pre>
+<div class="inline-figure"><img src="bookdown_time_series_files/figure-html/rnn-8-1.png" width="672"></div>
+<p>El modelo de prediccion de Jordan evidencia un mejor ajuste que el entrenamiento suguriendo la incorporacion de generalizacion en el modelo y el ajuste de parametros que en un su conjunto benefician el resultado del modelo, con un MAE de 0.0121, sin embargo esto nos puede indicar algunos problemas que detallaremos en las conclusiones.</p>
+</div>
+<div id="análisis-de-resultados" class="section level2" number="7.7">
+<h2>
+<span class="header-section-number">7.7</span> 7. Análisis de Resultados<a class="anchor" aria-label="anchor" href="#an%C3%A1lisis-de-resultados"><i class="fas fa-link"></i></a>
+</h2>
+<p>En esta sección, presentamos una tabla comparativa de los errores MAE obtenidos tanto en el conjunto de entrenamiento como en el de validación para ambos modelos: Elman y Jordan. Esta tabla te permitirá evaluar y comparar el rendimiento de cada modelo</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:rnn-9">Table 7.1: </span>Comparación de MAE entre Elman y Jordan RNN</caption>
+<thead><tr class="header">
+<th align="left">Modelo</th>
+<th align="right">MAE Entrenamiento</th>
+<th align="right">MAE Validación</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Elman RNN</td>
+<td align="right">0.0410</td>
+<td align="right">0.0108</td>
+</tr>
+<tr class="even">
+<td align="left">Jordan RNN</td>
+<td align="right">0.0181</td>
+<td align="right">0.0121</td>
+</tr>
+</tbody>
+</table></div>
+<p>Como se puede observar, para ambos modelos, se obtuvo un mejor desempeño con el dataset de validación que con el de training, este comportamiento sugiere:</p>
+<ul>
+<li>Subajuste (Underfitting): Ambos modelos podrían no estar capturando completamente la complejidad de los datos de entrenamiento, lo que resulta en errores de entrenamiento relativamente altos. Sin embargo, sorprendentemente, el modelo Elman RNN logra generalizar de manera más efectiva en el conjunto de validación, reflejado en un MAE significativamente menor.</li>
+</ul>
+<p>-Posible Beneficio de la Regularización o Configuración del Modelo: Es posible que la configuración actual de los modelos, como el número de neuronas en las capas ocultas o la tasa de aprendizaje, esté contribuyendo a una mejor generalización en el conjunto de validación, aunque a costa de un ajuste menos preciso en el entrenamiento.</p>
+<ul>
+<li>Calidad y Distribución de los Datos: La distribución de los datos entre los conjuntos de entrenamiento y validación podría estar influyendo en estos resultados. Si el conjunto de validación contiene datos que son, por alguna razón, más fáciles de predecir o menos ruidosos que el conjunto de entrenamiento, esto podría explicar el menor MAE observado.</li>
+</ul>
+<p>En resumen, los resultados indican que ambos modelos presentan signos de subajuste, ya que no logran reducir suficientemente el error en el conjunto de entrenamiento. Sin embargo, el modelo Elman RNN muestra una mejor capacidad de generalización en el conjunto de validación en comparación con el modelo Jordan RNN. Para mejorar el rendimiento de ambos modelos y reducir el subajuste, se podrían considerar las siguientes acciones:</p>
+<ul>
+<li><p>Aumentar la Complejidad del Modelo: Incrementar el número de neuronas en las capas ocultas o añadir más capas puede permitir que el modelo capture patrones más complejos en los datos.</p></li>
+<li><p>Ajustar Hiperparámetros: Experimentar con diferentes tasas de aprendizaje, funciones de activación y métodos de regularización puede ayudar a optimizar el desempeño del modelo.</p></li>
+<li><p>Incrementar la Cantidad de Datos: Utilizar más datos de entrenamiento puede mejorar la capacidad del modelo para aprender representaciones más precisas de la serie temporal.</p></li>
+<li><p>Revisar la División de Datos: Asegurarse de que la división entre entrenamiento y validación sea representativa y que no existan sesgos que faciliten la predicción en el conjunto de validación.</p></li>
+</ul>
+<p>Estos ajustes podrían contribuir a reducir el MAE en el conjunto de entrenamiento sin comprometer, e incluso mejorando, el rendimiento en el conjunto de validación, logrando así un equilibrio más óptimo entre ajuste y generalización.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="modelos-estacionarios-en-series-de-tiempo.html"><span class="header-section-number">6</span> Modelos Estacionarios en series de tiempo</a></div>
+<div class="empty"></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#redes-neuronales-rn-y-redes-neuronales-recurrentes-rnn"><span class="header-section-number">7</span> Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN)</a></li>
+<li><a class="nav-link" href="#carga-y-preprocesamiento-del-dataset-1"><span class="header-section-number">7.1</span> 1. Carga y Preprocesamiento del Dataset</a></li>
+<li><a class="nav-link" href="#creaci%C3%B3n-de-las-ventanas-deslizantes"><span class="header-section-number">7.2</span> 2. Creación de las ventanas deslizantes</a></li>
+<li><a class="nav-link" href="#entrenamiento-del-modelo-elman"><span class="header-section-number">7.3</span> 3. Entrenamiento del Modelo ELMAN</a></li>
+<li><a class="nav-link" href="#validaci%C3%B3n-del-modelo-elman"><span class="header-section-number">7.4</span> 4. Validación del Modelo Elman</a></li>
+<li><a class="nav-link" href="#entrenamiento-del-modelo-jordan"><span class="header-section-number">7.5</span> 5. Entrenamiento del Modelo Jordan</a></li>
+<li><a class="nav-link" href="#validaci%C3%B3n-del-modelo-jordan"><span class="header-section-number">7.6</span> 6. Validación del Modelo Jordan</a></li>
+<li><a class="nav-link" href="#an%C3%A1lisis-de-resultados"><span class="header-section-number">7.7</span> 7. Análisis de Resultados</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>EUR/USD</strong>" was written by Harvey Bastidas, Andrés Caicedo, Alexander Alvarado. It was last built on 2024-12-10.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+# Redes Neuronales (RN) y Redes Neuronales Recurrentes (RNN)
+
+Las redes neurales **RN** se componen de nodos que cumplen la funcion de neuronas para el rocesamiento de los datos partiendo de una entrada emiten un valor de salida. Se han estado empleando en numerosas aplicaciones, entre sus principales ventajas, se menciona el hecho de no ser lineales, alta capacidad de aprendizaje y permiten describir la distribución de los datos, ya que pueden aprender a partir de muestras y son faciles de implementar por medio de algoritmos sencillos de discriminación basados en funciones no lineales si fuera necesario. Las redes neuronales recurrentes **RNN** son entrenadas para procesar y convertir una entrada de datos secuencial en una salida de datos secuencial específica, es decir se alimentan de sus propios resultados.
+
+## 1. Carga y Preprocesamiento del Dataset
+
+Cargamos los paquetes necesarios y el dataset EURUSD_ForexTrading_4hrs.csv que contiene los tipos de cambio Euro Dolar históricos de 2003 a 2021 y procedemos con el procesamiento y depuracion de las variables necesarias para los modelos de redes neuronales recurrentes RNN
+
+```{r include=FALSE}
+# Cargar las bibliotecas necesarias
+#install.packages("RSNNS")
+require(RSNNS)
+library(prophet)
+library(forecast)
+library(tseries)
+library(dplyr)
+library(readr)
+library(ggplot2)
+```
+
+```{r rnn-1, echo=FALSE}
+# ===========================
+# Inicializar la Tabla Comparativa de MAE
+# ===========================
+
+# Inicializar la tabla comparativa
+mae_results <- data.frame(
+  Modelo = character(),
+  MAE_Entrenamiento = numeric(),
+  MAE_Validacion = numeric(),
+  stringsAsFactors = FALSE
+)
+
+# ===========================
+# Cargar y Preprocesar el Dataset
+# ===========================
+
+# Cargar el dataset desde un archivo CSV
+data <- read_csv("EURUSD_ForexTrading_4hrs.csv", show_col_types = FALSE)
+
+# Convertir las fechas y seleccionar las columnas relevantes
+data <- data %>%
+  mutate(
+    ds = as.POSIXct(`Gmt time`, format = "%d.%m.%Y %H:%M:%OS"),  # Convertir a formato fecha-hora
+    y = close  # Renombrar la columna 'close' como 'y' para usarla en los modelos
+  ) %>%
+  select(ds, y)  # Mantener solo las columnas necesarias
+
+# Dividir en conjuntos de entrenamiento (70%) y validación (30%)
+set.seed(123)
+train_index <- floor(0.7 * nrow(data))
+train_data <- data[1:train_index, ]
+test_data <- data[(train_index + 1):nrow(data), ]
+
+# Normalizar usando Min-Max basado en el conjunto de entrenamiento
+min_y <- min(train_data$y)
+max_y <- max(train_data$y)
+train_data$y <- (train_data$y - min_y) / (max_y - min_y)
+test_data$y <- (test_data$y - min_y) / (max_y - min_y)
+
+# Visualización inicial de los datos
+ggplot(data, aes(x = ds, y = y)) +
+  geom_line(color = "black") +
+  labs(title = "Serie Temporal Original", x = "Fecha", y = "Valor Normalizado") +
+  theme_minimal()
+```
+
+## 2. Creación de las ventanas deslizantes
+
+En esta sección, definimos una función para crear ventanas de entrenamiento y prueba. Cada entrada constará de window_size ticks (32) y se predecirán los siguientes 6 ticks (horizonte de predicción), moviendo la ventana cada 6 ticks.
+
+```{r rnn-2, echo=FALSE}
+# Función para crear un conjunto de datos con ventanas deslizantes multi-step
+create_sliding_windows <- function(series, window_size, forecast_horizon, stride) {
+  # series: vector numérico con la serie normalizada
+  # window_size: tamaño de la ventana (ej. 32)
+  # forecast_horizon: horizonte de predicción (ej. 6)
+  # stride: paso con el que se mueve la ventana (ej. 6)
+  
+  n <- length(series)
+  max_start <- n - window_size - forecast_horizon + 1
+  
+  inputs_list <- list()
+  outputs_list <- list()
+  
+  idx <- 1
+  for (start_i in seq(1, max_start, by=stride)) {
+    end_input <- start_i + window_size - 1
+    end_output <- end_input + forecast_horizon
+    
+    input_vec <- series[start_i:end_input]
+    output_vec <- series[(end_input+1):end_output]
+    
+    inputs_list[[idx]] <- input_vec
+    outputs_list[[idx]] <- output_vec
+    idx <- idx + 1
+  }
+  
+  inputs_mat <- do.call(rbind, inputs_list)
+  outputs_mat <- do.call(rbind, outputs_list)
+  
+  return(list(inputs=inputs_mat, outputs=outputs_mat))
+}
+
+# Parámetros de configuración
+ticks_per_day <- 6          # Número de ticks por día y stride
+window_size <- 32            # Tamaño de la ventana
+forecast_horizon <- ticks_per_day  # Horizonte de predicción
+
+# Preparar datos de entrenamiento y prueba como vectores
+train_series <- train_data$y
+test_series <- test_data$y
+
+# Crear ventanas de entrenamiento
+train_windows <- create_sliding_windows(
+  series = train_series,
+  window_size = window_size,
+  forecast_horizon = forecast_horizon,
+  stride = ticks_per_day
+)
+
+# Crear ventanas de prueba
+test_windows <- create_sliding_windows(
+  series = test_series,
+  window_size = window_size,
+  forecast_horizon = forecast_horizon,
+  stride = ticks_per_day
+)
+
+# Extraer inputs/outputs
+train_inputs <- train_windows$inputs
+train_outputs <- train_windows$outputs
+test_inputs <- test_windows$inputs
+test_outputs <- test_windows$outputs
+
+```
+
+## 3. Entrenamiento del Modelo ELMAN
+
+Como lo observamos en la teoria normalmente tiene dos capas, pero difiere de la red convencional de dos capas en que la capa oculta tiene una realimentación desde su salida a su entrada, esto permite a la red de Elman aprender a reconocer y generar patrones temporales o variantes en el tiempo. Generamos predicciones sobre el conjunto de entrenamiento utilizando el modelo entrenado y reconstruimos la serie de predicciones para comparar con los datos reales. Calculamos el MAE para el conjunto de entrenamiento y lo almacenamos en la tabla comparativa.
+
+```{r rnn-3, echo=FALSE, warning=FALSE}
+require(RSNNS)
+require(quantmod)
+# Entrenar Elman RNN
+set.seed(123) # Fijar semilla para reproducibilidad
+fit_elman <- elman(
+  x = train_inputs,
+  y = train_outputs,
+  size = c(10),               # 1 capa oculta con 10 neuronas (ajustable para optimización)
+  learnFuncParams = c(0.01),  # Tasa de aprendizaje
+  maxit = 1000,              # Número máximo de iteraciones reducido para acelerar el entrenamiento
+  linOut = TRUE              # Salida lineal para regresión
+)
+# Visualizar el error de entrenamiento
+plotIterativeError(fit_elman, main="Error de Iteración - Elman RNN")
+```
+
+Como se puede observar en el grafico vemos como evoluciona el error de la red con el numero de iteraciones para los parametros expuestos y tiende a cero, evidenciando el ajuste en cada iteracion con la data real.
+
+```{r rnn-4, echo=FALSE}
+# Generar predicciones sobre el conjunto de entrenamiento
+train_pred_elman <- predict(fit_elman, train_inputs)
+
+# Función para reconstruir la serie de predicciones
+reconstruct_predictions <- function(outputs_matrix, stride) {
+  n_windows <- nrow(outputs_matrix)
+  forecast_horizon <- ncol(outputs_matrix)
+  
+  total_length <- (n_windows - 1) * stride + forecast_horizon
+  pred_series <- rep(NA, total_length)
+  
+  for (i in 1:n_windows) {
+    start_pos <- (i-1) * stride + 1
+    end_pos <- start_pos + forecast_horizon - 1
+    pred_series[start_pos:end_pos] <- outputs_matrix[i,]
+  }
+  
+  return(pred_series)
+}
+
+# Reconstruir la serie de predicciones para entrenamiento
+train_pred_elman_series <- reconstruct_predictions(train_pred_elman, stride = ticks_per_day)
+
+# Extraer la porción correspondiente de los datos reales para comparación
+train_real_compare <- train_series[(window_size + 1):(window_size + length(train_pred_elman_series))]
+
+# Asegurar que las longitudes coinciden
+min_length_train <- min(length(train_real_compare), length(train_pred_elman_series))
+train_real_compare <- train_real_compare[1:min_length_train]
+train_pred_elman_series <- train_pred_elman_series[1:min_length_train]
+
+# Calcular MAE para entrenamiento
+mae_train_elman <- mean(abs(train_real_compare - train_pred_elman_series), na.rm = TRUE)
+print(paste("MAE Entrenamiento Elman RNN:", round(mae_train_elman, 4)))
+
+# Agregar MAE al dataframe comparativo
+mae_results <- rbind(
+  mae_results,
+  data.frame(Modelo = "Elman RNN", 
+             MAE_Entrenamiento = mae_train_elman, 
+             MAE_Validacion = NA) # Placeholder para MAE de validación
+)
+
+# Preparar data frame para graficar (mostrar solo las últimas 5000 predicciones si aplicable)
+if(length(train_real_compare) > 2000){
+  plot_limit_train <- (length(train_real_compare) - 1999)
+} else {
+  plot_limit_train <- 1
+}
+
+train_df_elman <- data.frame(
+  Tick = (plot_limit_train):length(train_real_compare),
+  Real = train_real_compare[plot_limit_train:length(train_real_compare)],
+  Predicho_Elman = train_pred_elman_series[plot_limit_train:length(train_real_compare)]
+)
+
+# Graficar Entrenamiento - Real vs Predicción Elman con Leyenda
+ggplot(train_df_elman, aes(x = Tick)) +
+  geom_line(aes(y = Real, color = "Real"), linewidth = 1, alpha = 0.7) +
+  geom_line(aes(y = Predicho_Elman, color = "Predicción Elman"), linewidth = 1, alpha = 0.7) +
+  labs(title = "Entrenamiento: Real vs Predicción Elman RNN (Últimas 2000 Predicciones)",
+       x = "Tick", y = "Valor Normalizado", color = "Leyenda:") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values = c("Real" = "blue", "Predicción Elman" = "red"))
+
+
+```
+
+El grafico de entrenamiento muestra visualmente un ajuste bueno de la prediccion del modelo con la realidad.
+
+## 4. Validación del Modelo Elman
+
+En esta sección, utilizamos el modelo Elman previamente entrenado para generar predicciones sobre el conjunto de validación (test). Calculamos el MAE para el conjunto de validación y actualizamos la tabla comparativa. Visualizamos los resultados superponiendo las predicciones con los datos reales normalizados.
+
+```{r rnn-5, echo=FALSE}
+# Generar predicciones sobre el conjunto de prueba
+test_pred_elman <- predict(fit_elman, test_inputs)
+
+# Reconstruir la serie de predicciones para prueba
+test_pred_elman_series <- reconstruct_predictions(test_pred_elman, stride = ticks_per_day)
+
+# Extraer la porción correspondiente de los datos reales para comparación
+test_real_compare <- test_series[(window_size + 1):(window_size + length(test_pred_elman_series))]
+
+# Asegurar que las longitudes coinciden
+min_length_test <- min(length(test_real_compare), length(test_pred_elman_series))
+test_real_compare <- test_real_compare[1:min_length_test]
+test_pred_elman_series <- test_pred_elman_series[1:min_length_test]
+
+# Calcular MAE para validación
+mae_test_elman <- mean(abs(test_real_compare - test_pred_elman_series), na.rm = TRUE)
+print(paste("MAE Validación Elman RNN:", round(mae_test_elman, 4)))
+
+# Actualizar el MAE en el dataframe comparativo
+mae_results$MAE_Validacion[mae_results$Modelo == "Elman RNN"] <- mae_test_elman
+
+# Preparar data frame para graficar (mostrar solo las últimas 5000 predicciones si aplicable)
+if(length(test_real_compare) > 2000){
+  plot_limit_test <- (length(test_real_compare) - 1999)
+} else {
+  plot_limit_test <- 1
+}
+
+test_df_elman <- data.frame(
+  Tick = (plot_limit_test):length(test_real_compare),
+  Real = test_real_compare[plot_limit_test:length(test_real_compare)],
+  Predicho_Elman = test_pred_elman_series[plot_limit_test:length(test_real_compare)]
+)
+
+# Graficar Validación - Real vs Predicción Elman con Leyenda
+ggplot(test_df_elman, aes(x = Tick)) +
+  geom_line(aes(y = Real, color = "Real"), size = 1, alpha = 0.7) +
+  geom_line(aes(y = Predicho_Elman, color = "Predicción Elman"), size = 1, alpha = 0.7) +
+  labs(title = "Validación: Real vs Predicción Elman RNN (Últimas 2000 Predicciones)",
+       x = "Tick", y = "Valor Normalizado", color = "Leyenda:") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values = c("Real" = "blue", "Predicción Elman" = "red"))
+
+
+
+```
+
+El grafico de validacion de la predicion muestra un ajuste menor que el entrenamiento con un MAE de 0.0108, lo que indica que el modelo de entrenamiento tiene mejor respuesta, situacion que detallaremos en las conclusiones
+
+## 5. Entrenamiento del Modelo Jordan
+
+En esta sección, entrenamos una **Red Neuronal Jordan** utilizando las ventanas deslizantes creadas anteriormente. Para optimizar el tiempo de entrenamiento, reducimos el número máximo de iteraciones y ajustamos el tamaño de la capa oculta en 10 al igual que se hizo con elman. Posteriormente, generamos predicciones sobre el conjunto de entrenamiento y calculamos el **MAE** correspondiente.
+
+```{r rnn-6, echo=FALSE}
+# Entrenar Jordan RNN
+set.seed(123) # Fijar semilla para reproducibilidad
+fit_jordan <- jordan(
+  x = train_inputs,
+  y = train_outputs,
+  size = c(10),               # 1 capa oculta con 10 neuronas (ajustable para optimización)
+  learnFuncParams = c(0.001), # Tasa de aprendizaje más baja que Elman
+  maxit = 1000,              # Número máximo de iteraciones reducido para acelerar el entrenamiento
+  linOut = TRUE              # Salida lineal para regresión
+)
+
+# Visualizar el error de entrenamiento
+plotIterativeError(fit_jordan, main="Error de Iteración - Jordan RNN")
+```
+
+Como se puede observar en el grafico vemos como evoluciona el error de la red con el numero de iteraciones para los parametros expuestos y tiende a cero, evidenciando el ajuste en cada iteracion con la data real.
+
+```{r rnn-7, echo=FALSE}
+# Generar predicciones sobre el conjunto de entrenamiento
+train_pred_jordan <- predict(fit_jordan, train_inputs)
+
+# Reconstruir la serie de predicciones para entrenamiento
+train_pred_jordan_series <- reconstruct_predictions(train_pred_jordan, stride = ticks_per_day)
+
+# Extraer la porción correspondiente de los datos reales para comparación
+train_real_compare <- train_series[(window_size + 1):(window_size + length(train_pred_jordan_series))]
+
+# Asegurar que las longitudes coinciden
+min_length_train_jordan <- min(length(train_real_compare), length(train_pred_jordan_series))
+train_real_compare_jordan <- train_real_compare[1:min_length_train_jordan]
+train_pred_jordan_series <- train_pred_jordan_series[1:min_length_train_jordan]
+
+# Calcular MAE para entrenamiento
+mae_train_jordan <- mean(abs(train_real_compare_jordan - train_pred_jordan_series), na.rm = TRUE)
+print(paste("MAE Entrenamiento Jordan RNN:", round(mae_train_jordan, 4)))
+
+# Agregar MAE al dataframe comparativo
+mae_results <- rbind(
+  mae_results,
+  data.frame(Modelo = "Jordan RNN", 
+             MAE_Entrenamiento = mae_train_jordan, 
+             MAE_Validacion = NA) # Placeholder para MAE de validación
+)
+
+# Preparar data frame para graficar (mostrar solo las últimas 5000 predicciones si aplicable)
+if(length(train_real_compare_jordan) > 2000){
+  plot_limit_train_jordan <- (length(train_real_compare_jordan) - 1999)
+} else {
+  plot_limit_train_jordan <- 1
+}
+
+train_df_jordan <- data.frame(
+  Tick = (plot_limit_train_jordan):length(train_real_compare_jordan),
+  Real = train_real_compare_jordan[plot_limit_train_jordan:length(train_real_compare_jordan)],
+  Predicho_Jordan = train_pred_jordan_series[plot_limit_train_jordan:length(train_real_compare_jordan)]
+)
+
+# Graficar Entrenamiento - Real vs Predicción Jordan con Leyenda
+ggplot(train_df_jordan, aes(x = Tick)) +
+  geom_line(aes(y = Real, color = "Real"), size = 1, alpha = 0.7) +
+  geom_line(aes(y = Predicho_Jordan, color = "Predicción Jordan"), size = 1, alpha = 0.7) +
+  labs(title = "Entrenamiento: Real vs Predicción Jordan RNN (Últimas 2000 Predicciones)",
+       x = "Tick", y = "Valor Normalizado", color = "Leyenda") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values = c("Real" = "blue", "Predicción Jordan" = "orange"))
+
+```
+
+Se evidencia un buen ajuste del modelo de red neuronal Jordan de entrenamiento con un MAE de 0.0181, superior al modelo Elman
+
+## 6. Validación del Modelo Jordan
+
+En esta sección, se usó el modelo Jordan previamente entrenado para generar predicciones sobre el conjunto de validación (test). Calculamos el MAE para el conjunto de validación y actualizamos la tabla comparativa. Visualizamos los resultados superponiendo las predicciones con los datos reales normalizados.
+
+```{r rnn-8, echo=FALSE}
+# Generar predicciones sobre el conjunto de prueba
+test_pred_jordan <- predict(fit_jordan, test_inputs)
+
+# Reconstruir la serie de predicciones para prueba
+test_pred_jordan_series <- reconstruct_predictions(test_pred_jordan, stride = ticks_per_day)
+
+# Extraer la porción correspondiente de los datos reales para comparación
+test_real_compare <- test_series[(window_size + 1):(window_size + length(test_pred_jordan_series))]
+
+# Asegurar que las longitudes coinciden
+min_length_test_jordan <- min(length(test_real_compare), length(test_pred_jordan_series))
+test_real_compare_jordan <- test_real_compare[1:min_length_test_jordan]
+test_pred_jordan_series <- test_pred_jordan_series[1:min_length_test_jordan]
+
+# Calcular MAE para validación
+mae_test_jordan <- mean(abs(test_real_compare_jordan - test_pred_jordan_series), na.rm = TRUE)
+print(paste("MAE Validación Jordan RNN:", round(mae_test_jordan, 4)))
+
+# Actualizar el MAE en el dataframe comparativo
+mae_results$MAE_Validacion[mae_results$Modelo == "Jordan RNN"] <- mae_test_jordan
+
+# Preparar data frame para graficar (mostrar solo las últimas 5000 predicciones si aplicable)
+if(length(test_real_compare_jordan) > 2000){
+  plot_limit_test_jordan <- (length(test_real_compare_jordan) - 1999)
+} else {
+  plot_limit_test_jordan <- 1
+}
+
+test_df_jordan <- data.frame(
+  Tick = (plot_limit_test_jordan):length(test_real_compare_jordan),
+  Real = test_real_compare_jordan[plot_limit_test_jordan:length(test_real_compare_jordan)],
+  Predicho_Jordan = test_pred_jordan_series[plot_limit_test_jordan:length(test_real_compare_jordan)]
+)
+
+# Graficar Validación - Real vs Predicción Jordan con Leyenda
+ggplot(test_df_jordan, aes(x = Tick)) +
+  geom_line(aes(y = Real, color = "Real"), size = 1, alpha = 0.7) +
+  geom_line(aes(y = Predicho_Jordan, color = "Predicción Jordan"), size = 1, alpha = 0.7) +
+  labs(title = "Validación: Real vs Predicción Jordan RNN (Últimas 2000 Predicciones)",
+       x = "Tick", y = "Valor Normalizado", color = "Leyenda:") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values = c("Real" = "blue", "Predicción Jordan" = "orange"))
+
+
+```
+
+El modelo de prediccion de Jordan evidencia un mejor ajuste que el entrenamiento suguriendo la incorporacion de generalizacion en el modelo y el ajuste de parametros que en un su conjunto benefician el resultado del modelo, con un MAE de 0.0121, sin embargo esto nos puede indicar algunos problemas que detallaremos en las conclusiones.
+
+## 7. Análisis de Resultados
+
+En esta sección, presentamos una tabla comparativa de los errores MAE obtenidos tanto en el conjunto de entrenamiento como en el de validación para ambos modelos: Elman y Jordan. Esta tabla te permitirá evaluar y comparar el rendimiento de cada modelo
+
+```{r rnn-9, echo=FALSE, dev = "png"}
+# Mostrar tabla de resultados MAE
+library(knitr)
+
+kable(
+  mae_results,
+  caption = "Comparación de MAE entre Elman y Jordan RNN",
+  col.names = c("Modelo", "MAE Entrenamiento", "MAE Validación"),
+  digits = 4
+)
+
+```
+
+Como se puede observar, para ambos modelos, se obtuvo un mejor desempeño con el dataset de validación que con el de training, este comportamiento sugiere:
+
+-   Subajuste (Underfitting): Ambos modelos podrían no estar capturando completamente la complejidad de los datos de entrenamiento, lo que resulta en errores de entrenamiento relativamente altos. Sin embargo, sorprendentemente, el modelo Elman RNN logra generalizar de manera más efectiva en el conjunto de validación, reflejado en un MAE significativamente menor.
+
+-Posible Beneficio de la Regularización o Configuración del Modelo: Es posible que la configuración actual de los modelos, como el número de neuronas en las capas ocultas o la tasa de aprendizaje, esté contribuyendo a una mejor generalización en el conjunto de validación, aunque a costa de un ajuste menos preciso en el entrenamiento.
+
+-   Calidad y Distribución de los Datos: La distribución de los datos entre los conjuntos de entrenamiento y validación podría estar influyendo en estos resultados. Si el conjunto de validación contiene datos que son, por alguna razón, más fáciles de predecir o menos ruidosos que el conjunto de entrenamiento, esto podría explicar el menor MAE observado.
+
+En resumen, los resultados indican que ambos modelos presentan signos de subajuste, ya que no logran reducir suficientemente el error en el conjunto de entrenamiento. Sin embargo, el modelo Elman RNN muestra una mejor capacidad de generalización en el conjunto de validación en comparación con el modelo Jordan RNN. Para mejorar el rendimiento de ambos modelos y reducir el subajuste, se podrían considerar las siguientes acciones:
+
+-   Aumentar la Complejidad del Modelo: Incrementar el número de neuronas en las capas ocultas o añadir más capas puede permitir que el modelo capture patrones más complejos en los datos.
+
+-   Ajustar Hiperparámetros: Experimentar con diferentes tasas de aprendizaje, funciones de activación y métodos de regularización puede ayudar a optimizar el desempeño del modelo.
+
+-   Incrementar la Cantidad de Datos: Utilizar más datos de entrenamiento puede mejorar la capacidad del modelo para aprender representaciones más precisas de la serie temporal.
+
+-   Revisar la División de Datos: Asegurarse de que la división entre entrenamiento y validación sea representativa y que no existan sesgos que faciliten la predicción en el conjunto de validación.
+
+Estos ajustes podrían contribuir a reducir el MAE en el conjunto de entrenamiento sin comprometer, e incluso mejorando, el rendimiento en el conjunto de validación, logrando así un equilibrio más óptimo entre ajuste y generalización.
