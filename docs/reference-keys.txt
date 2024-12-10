@@ -1,5 +1,6 @@
 tab:cargar-datos
 tab:normalizar-close
+tab:rnn-9
 justificación-de-elección-del-dataset
 información-del-dataset
 justificación-de-la-elección-del-dataset
@@ -55,3 +56,11 @@ predicciones-día-a-día-en-validación-con-ets
 tabla-comparativa-de-mae
 discusión
 sección-11-conclusiones
+redes-neuronales-rn-y-redes-neuronales-recurrentes-rnn
+carga-y-preprocesamiento-del-dataset-1
+creación-de-las-ventanas-deslizantes
+entrenamiento-del-modelo-elman
+validación-del-modelo-elman
+entrenamiento-del-modelo-jordan
+validación-del-modelo-jordan
+análisis-de-resultados
